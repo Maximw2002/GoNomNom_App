@@ -1,9 +1,12 @@
-import bg from "@/assets/images/bg.png";
-import highlight from "@/assets/images/highlight.png";
 import rankingGradient from "@/assets/images/rankingGradient.png";
+import restaurantImage from "@/assets/images/r1.png"
+import restaurantImage2 from "@/assets/images/r2.png"
+import restaurantImage3 from "@/assets/images/r3.png"
+
 
 export const images = {
-  bg,
-  highlight,
   rankingGradient,
+  restaurantImage,
+  restaurantImage2,
+  restaurantImage3
 };

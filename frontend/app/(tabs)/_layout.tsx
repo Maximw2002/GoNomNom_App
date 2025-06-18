@@ -3,6 +3,20 @@ import React from 'react'
 import { Tabs } from 'expo-router'
 import { icons } from '@/constants/icons'
 
+const TabIcon = ({ color, icon, size = 40 }:any) => {
+  return (
+        <Image
+              source={icon}
+              style={{
+                width: size,
+                height: size,
+                tintColor: color,
+              }}
+              resizeMode="contain"
+            />
+  )
+}
+
 const _layout = () => {
   return (
     <Tabs
@@ -13,6 +27,12 @@ const _layout = () => {
           height: 100,
           paddingTop: 25,
         },
+        tabBarItemStyle: {
+          width: '100%',
+          height: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
         tabBarActiveTintColor: '#007AFF', // aktive Icon-Farbe
         tabBarInactiveTintColor: '#ffffff', // inaktive Icon-Farbe
         headerShown: false,
@@ -20,37 +40,28 @@ const _layout = () => {
       }}
     >
       <Tabs.Screen 
+        name="favorites"
+        options={{
+            title: 'Favorites',
+            tabBarIcon: ({ color }) => (
+                <TabIcon
+              color={color}
+              icon={icons.favorites}
+              size={50}
+               />
+            ),
+        }}
+      />
+      <Tabs.Screen 
         name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => (
-            <Image
-              source={icons.home}
-              style={{
-                width: 40,
-                height: 40,
-                tintColor: color,
-              }}
-              resizeMode="contain"
-            />
+            <TabIcon
+              color={color}
+              icon={icons.plus}
+               />
           ),
-        }}
-      />
-      <Tabs.Screen 
-        name="favorites"
-        options={{
-            title: 'Favorites',
-            tabBarIcon: ({ color, size }) => (
-                <Image
-                source={icons.favorites}
-                style={{
-                    width: size ?? 24,
-                    height: size ?? 24,
-                    tintColor: color,
-                }}
-                resizeMode="contain"
-                />
-            ),
         }}
       />
         <Tabs.Screen 
@@ -58,15 +69,10 @@ const _layout = () => {
           options={{
             title: 'Settings',
             tabBarIcon: ({ color }) => (
-              <Image
-                source={icons.settings}
-                style={{
-                  width: 38,
-                  height: 38,
-                  tintColor: color,
-                }}
-                resizeMode="contain"
-              />
+              <TabIcon
+              color={color}
+              icon={icons.user}
+               />
             ),
           }}
         />

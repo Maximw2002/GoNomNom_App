@@ -9,7 +9,10 @@ module.exports = {
         primary: '#000000',
         secondary: '#ffffff',
         accent: '#007AFF'
-      }
+      },
+      fontFamily: {
+        orbitron: ['Orbitron-Bold'],
+      },
     },
   },
   plugins: [],
