@@ -10,3 +10,5 @@ export const images = {
   restaurantImage2,
   restaurantImage3
 };
+
+export default images;
