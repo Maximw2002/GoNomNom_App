@@ -5,6 +5,7 @@ import {
   Touchable,
   TouchableOpacity,
   Image,
+  Pressable,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import React, { useCallback, useState } from "react";
@@ -12,14 +13,14 @@ import data, { Card } from "@/assets/data/data";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import CardView from "@/components/RestaurantCard/CardView";
-import { useSharedValue } from "react-native-reanimated";
 import Header from "@/components/Header";
-
-
-
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 const SWIPE_OUT_DURATION = 250;
@@ -32,48 +33,77 @@ const Index = () => {
   const nextCardScale = useSharedValue(0.9);
   const dummyTranslate = useSharedValue(0); // Placeholder for SharedValue
 
-  const renderCard = useCallback((card: Card, index: number) => (
-    <CardView
-      key={card.id}
-      card={card}
-      index={index}
-      totalCards={cards.length}
-      panHandlers={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
-      translateX={index === 0 ? translateX : dummyTranslate} // Use dummyTranslate for non-top cards
-      translateY={index === 0 ? translateY : dummyTranslate} // Use dummyTranslate for non-top cards
-      nextCardScale={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+  const descriptionScaleLike = useSharedValue(1);
+  const descriptionScaleDislike = useSharedValue(1);
 
-    />
-  ), [cards.length, translateX, translateY, nextCardScale]);
+  const descriptionAnimatedStyleLike = useAnimatedStyle(() => ({
+    transform: [{ scale: descriptionScaleLike.value }],
+  }));
+  const descriptionAnimatedStyleDislike = useAnimatedStyle(() => ({
+    transform: [{ scale: descriptionScaleDislike.value }],
+  }));
+
+  const renderCard = useCallback(
+    (card: Card, index: number) => (
+      <CardView
+        key={card.id}
+        card={card}
+        index={index}
+        totalCards={cards.length}
+        panHandlers={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+        translateX={index === 0 ? translateX : dummyTranslate} // Use dummyTranslate for non-top cards
+        translateY={index === 0 ? translateY : dummyTranslate} // Use dummyTranslate for non-top cards
+        nextCardScale={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+      />
+    ),
+    [cards.length, translateX, translateY, nextCardScale]
+  );
 
   return (
     <View style={styles.container}>
       <Header title="GoNomNom" back={false} />
-    <View style={styles.cardDeck}>
-      {cards.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No cards available</Text>
-        </View>
-      ) : (
-        <>
-        {cards.map(renderCard).reverse()}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.btn} onPress={() => setCards(data)}>
-              <Image source={icons.close} style={styles.dislikeImage} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => setCards(data)}>
-              <Image source={icons.heart} style={styles.likeImage} />
-            </TouchableOpacity>
+      <View style={styles.cardDeck}>
+        {cards.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No cards available</Text>
           </View>
-        </>
-      )}
-    </View>
+        ) : (
+          <>
+            {cards.map(renderCard).reverse()}
+            <View style={styles.buttonContainer}>
+              <Pressable
+                onPressIn={() => {
+                  descriptionScaleDislike.value = withTiming(0.9, { duration: 120 });
+                }}
+                onPressOut={() => {
+                  descriptionScaleDislike.value = withTiming(1, { duration: 120 });
+                }}
+              >
+                <Animated.View style={[styles.btn, descriptionAnimatedStyleDislike]}>
+                  <Image source={icons.close} style={styles.dislikeImage} />
+                </Animated.View>
+              </Pressable>
+              <Pressable
+                onPressIn={() => {
+                  descriptionScaleLike.value = withTiming(0.9, { duration: 120 });
+                }}
+                onPressOut={() => {
+                  descriptionScaleLike.value = withTiming(1, { duration: 120 });
+                }}
+              >
+                <Animated.View style={[styles.btn, descriptionAnimatedStyleLike]}>
+                  <Image source={icons.heart} style={styles.likeImage} />
+                </Animated.View>
+              </Pressable>
+            </View>
+          </>
+        )}
+      </View>
     </View>
   );
 };
 
 export default Index;
-
 
 const styles = StyleSheet.create({
   container: {
