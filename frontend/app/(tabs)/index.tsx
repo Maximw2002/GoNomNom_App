@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  PanResponder,
 } from "react-native";
 import { StyleSheet } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { use, useCallback, useRef, useState } from "react";
 import data, { Card } from "@/assets/data/data";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
@@ -17,7 +18,10 @@ import Header from "@/components/Header";
 import Animated, {
   useSharedValue,
   withTiming,
+  withDelay,
   useAnimatedStyle,
+  runOnJS,
+  Easing,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -33,6 +37,100 @@ const Index = () => {
   const translateY = useSharedValue(0); // Placeholder for SharedValue
   const nextCardScale = useSharedValue(0.9);
   const dummyTranslate = useSharedValue(0); // Placeholder for SharedValue
+
+  const resetPosition = useCallback(() => {
+    translateX.value = withTiming(0, { duration: RESET_DURATION });
+    translateY.value = withTiming(0, { duration: RESET_DURATION });
+    nextCardScale.value = withTiming(0.9, { duration: RESET_DURATION });
+  }, []);
+
+  const onSwipeComplete = useCallback(
+    (direction: "right" | "left" | "up" | "down") => {
+      const action =
+        direction === "right" || direction === "up" ? "LIKED" : "DISLIKED";
+
+      console.log("action -->", action, cards[0].name);
+
+      if (cards.length > 0) {
+        setCards((prevCards) => prevCards.slice(1));
+        translateX.value = 0;
+        translateY.value = 0;
+
+        nextCardScale.value = 0.8;
+        nextCardScale.value = withDelay(
+          100,
+          withTiming(0.9, { duration: 400, easing: Easing.exp })
+        );
+      } else {
+        resetPosition();
+      }
+    },
+    [cards, resetPosition]
+  );
+
+  const forceSwipe = useCallback(
+    (direction: "right" | "left" | "up" | "down") => {
+      const swipeConfig = {
+        right: { x: SCREEN_WIDTH * 1.5, y: 0 },
+        left: { x: -SCREEN_WIDTH * 1.5, y: 0 },
+        up: { x: 0, y: -SCREEN_HEIGHT * 1.5 },
+        down: { x: 0, y: SCREEN_HEIGHT * 1.5 },
+      };
+
+      translateX.value = withTiming(swipeConfig[direction].x, {
+        duration: SWIPE_OUT_DURATION,
+      });
+      translateY.value = withTiming(
+        swipeConfig[direction].y,
+        {
+          duration: SWIPE_OUT_DURATION,
+        },
+        () => runOnJS(onSwipeComplete)(direction)
+      );
+    },
+    [onSwipeComplete]
+  );
+
+  const handleLike = useCallback(() => forceSwipe("right"), [forceSwipe]);
+  const handleDislike = useCallback(() => forceSwipe("left"), [forceSwipe]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gesture) => {
+        translateX.value = gesture.dx;
+        translateY.value = gesture.dy;
+
+        const dragDistance = Math.sqrt(gesture.dx ** 2 + gesture.dy ** 2);
+        const progress = Math.min(dragDistance / SWIPE_THRESHOLD, 1);
+        nextCardScale.value = 0.9 + 0.1 * progress;
+      },
+
+      onPanResponderRelease: (_, gesture) => {
+        const absDx = Math.abs(gesture.dx);
+        const absDy = Math.abs(gesture.dy);
+
+        if (absDy > absDx) {
+          if (gesture.dy < -SWIPE_THRESHOLD) {
+            forceSwipe("up");
+          } else if (gesture.dy > SWIPE_THRESHOLD) {
+            forceSwipe("down");
+          } else {
+            resetPosition();
+          }
+        } else {
+          if (gesture.dx > SWIPE_THRESHOLD) {
+            forceSwipe("right");
+          } else if (gesture.dx < -SWIPE_THRESHOLD) {
+            forceSwipe("left");
+          } else {
+            resetPosition();
+          }
+        }
+      },
+    })
+  ).current;
 
   const btnScaleLike = useSharedValue(1);
   const btnScaleDislike = useSharedValue(1);
@@ -51,13 +149,19 @@ const Index = () => {
         card={card}
         index={index}
         totalCards={cards.length}
-        panHandlers={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+        panHandlers={index === 0 ? panResponder.panHandlers : {}} // Use dummyTranslate for non-top cards
         translateX={index === 0 ? translateX : dummyTranslate} // Use dummyTranslate for non-top cards
         translateY={index === 0 ? translateY : dummyTranslate} // Use dummyTranslate for non-top cards
-        nextCardScale={index === 0 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+        nextCardScale={index === 1 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
       />
     ),
-    [cards.length, translateX, translateY, nextCardScale]
+    [
+      cards.length,
+      panResponder.panHandlers,
+      translateX,
+      translateY,
+      nextCardScale,
+    ]
   );
 
   return (
@@ -78,6 +182,7 @@ const Index = () => {
                 }}
                 onPressOut={() => {
                   btnScaleDislike.value = withTiming(1, { duration: 120 });
+                  handleLike();
                 }}
               >
                 <Animated.View style={[styles.btn, btnAnimatedStyleDislike]}>
@@ -87,6 +192,7 @@ const Index = () => {
               <Pressable
                 onPressIn={() => {
                   btnScaleLike.value = withTiming(0.9, { duration: 120 });
+                  handleDislike();
                 }}
                 onPressOut={() => {
                   btnScaleLike.value = withTiming(1, { duration: 120 });
@@ -123,7 +229,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     paddingTop: 4,
-     // Replace with your desired color or use a theme
+    // Replace with your desired color or use a theme
   },
   dislikeImage: {
     width: 25,
@@ -135,6 +241,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
+    zIndex: 5,
   },
   btn: {
     width: 70,
