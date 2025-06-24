@@ -66,7 +66,7 @@ const CardView: FC<CardViewProps> = ({
 const styles = StyleSheet.create({
   card: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.7,
+    height: SCREEN_HEIGHT * 0.65,
     backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   pressable: {
     position: 'absolute',
-    bottom: 150,
+    bottom: 110,
     width: SCREEN_WIDTH * 0.8,
     height: 110,
     alignSelf: 'center',
@@ -104,6 +104,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: '#fff',
+    borderWidth: 2,
   },
   descriptionText: {
     fontSize: 18,

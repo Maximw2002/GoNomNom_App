@@ -22,9 +22,7 @@ const Header: React.FC<HeaderProps> = ({ title, back }) => {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
       <View style={styles.container}>
-        {back && (
-          <Image source={icons.arrowback} style={styles.backIcon} />
-        )}
+        {back && <Image source={icons.arrowback} style={styles.backIcon} />}
 
         <Text style={styles.title}>{title}</Text>
       </View>
@@ -36,10 +34,10 @@ export default Header;
 
 const styles = StyleSheet.create({
   safe: {
-    backgroundColor: "#000",            // identisch zum Screen
+    backgroundColor: "#000", // identisch zum Screen
   },
   container: {
-    height: 56,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
   },

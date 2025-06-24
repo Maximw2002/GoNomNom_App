@@ -19,6 +19,7 @@ import Animated, {
   withTiming,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -33,14 +34,14 @@ const Index = () => {
   const nextCardScale = useSharedValue(0.9);
   const dummyTranslate = useSharedValue(0); // Placeholder for SharedValue
 
-  const descriptionScaleLike = useSharedValue(1);
-  const descriptionScaleDislike = useSharedValue(1);
+  const btnScaleLike = useSharedValue(1);
+  const btnScaleDislike = useSharedValue(1);
 
-  const descriptionAnimatedStyleLike = useAnimatedStyle(() => ({
-    transform: [{ scale: descriptionScaleLike.value }],
+  const btnAnimatedStyleLike = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScaleLike.value }],
   }));
-  const descriptionAnimatedStyleDislike = useAnimatedStyle(() => ({
-    transform: [{ scale: descriptionScaleDislike.value }],
+  const btnAnimatedStyleDislike = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScaleDislike.value }],
   }));
 
   const renderCard = useCallback(
@@ -60,7 +61,7 @@ const Index = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header title="GoNomNom" back={false} />
       <View style={styles.cardDeck}>
         {cards.length === 0 ? (
@@ -73,25 +74,25 @@ const Index = () => {
             <View style={styles.buttonContainer}>
               <Pressable
                 onPressIn={() => {
-                  descriptionScaleDislike.value = withTiming(0.9, { duration: 120 });
+                  btnScaleDislike.value = withTiming(0.9, { duration: 120 });
                 }}
                 onPressOut={() => {
-                  descriptionScaleDislike.value = withTiming(1, { duration: 120 });
+                  btnScaleDislike.value = withTiming(1, { duration: 120 });
                 }}
               >
-                <Animated.View style={[styles.btn, descriptionAnimatedStyleDislike]}>
+                <Animated.View style={[styles.btn, btnAnimatedStyleDislike]}>
                   <Image source={icons.close} style={styles.dislikeImage} />
                 </Animated.View>
               </Pressable>
               <Pressable
                 onPressIn={() => {
-                  descriptionScaleLike.value = withTiming(0.9, { duration: 120 });
+                  btnScaleLike.value = withTiming(0.9, { duration: 120 });
                 }}
                 onPressOut={() => {
-                  descriptionScaleLike.value = withTiming(1, { duration: 120 });
+                  btnScaleLike.value = withTiming(1, { duration: 120 });
                 }}
               >
-                <Animated.View style={[styles.btn, descriptionAnimatedStyleLike]}>
+                <Animated.View style={[styles.btn, btnAnimatedStyleLike]}>
                   <Image source={icons.heart} style={styles.likeImage} />
                 </Animated.View>
               </Pressable>
@@ -99,7 +100,7 @@ const Index = () => {
           </>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -121,7 +122,8 @@ const styles = StyleSheet.create({
   likeImage: {
     width: 35,
     height: 35,
-    paddingTop: 4, // Replace with your desired color or use a theme
+    paddingTop: 4,
+     // Replace with your desired color or use a theme
   },
   dislikeImage: {
     width: 25,
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 50,
+    bottom: 0,
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
