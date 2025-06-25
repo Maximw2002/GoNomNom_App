@@ -115,17 +115,6 @@ const CardView: FC<CardViewProps> = ({
     <Animated.View style={[styles.card, animationStyle]} {...panHandlers}>
       <View style={styles.cardImage}>
         <Image source={card.image} style={styles.image} />
-        <LinearGradient
-          colors={[
-            "transparent",
-            "rgba(0,0,0,0.1)",
-            "rgba(0,0,0,0.1)",
-            "rgba(0,0,0,0.1)",
-            "rgba(0,0,0,0.8)",
-            "#000",
-          ]}
-          style={styles.linearGradient}
-        />
       </View>
 
       <Pressable
@@ -162,14 +151,15 @@ export default memo(CardView);
 const styles = StyleSheet.create({
   card: {
     width: SCREEN_WIDTH * 0.9,
-    height: SCREEN_HEIGHT * 0.65,
+    height: SCREEN_HEIGHT * 0.56,
     backgroundColor: "black",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
-    borderRadius: 60,
+    borderRadius: 40,
     position: "absolute",
-    bottom: 0,
+    bottom: 80,
     overflow: "hidden",
+    
   },
   linearGradient: {
     width: SCREEN_WIDTH,
@@ -180,6 +170,9 @@ const styles = StyleSheet.create({
   cardImage: {
     width: "100%",
     height: "100%",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    
   },
   image: {
     width: "100%",
@@ -188,20 +181,20 @@ const styles = StyleSheet.create({
   },
   pressable: {
     position: "absolute",
-    bottom: 90,
-    width: SCREEN_WIDTH * 0.7,
-    height: 130,
+    bottom: 15,
+    width: '90%',
+    height: '25%',
     alignSelf: "center",
   },
   description: {
     flex: 1,
-    borderRadius: 35,
     backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "flex-start",
     paddingLeft: 30,
     paddingBottom: 16,
     paddingTop: 16,
+    borderRadius: 40,
   },
   name: {
     fontWeight: "bold",

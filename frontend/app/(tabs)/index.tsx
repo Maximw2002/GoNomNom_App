@@ -53,14 +53,15 @@ const Index = () => {
 
       if (cards.length > 0) {
         setCards((prevCards) => prevCards.slice(1));
-        translateX.value = 0;
-        translateY.value = 0;
-
-        nextCardScale.value = 0.8;
-        nextCardScale.value = withDelay(
-          100,
-          withTiming(0.9, { duration: 400, easing: Easing.exp })
-        );
+        requestAnimationFrame(() => {
+          translateX.value = 0;
+          translateY.value = 0;
+          nextCardScale.value = 0.8;
+          nextCardScale.value = withTiming(0.9, {
+            duration: 400,
+            easing: Easing.exp,
+          });
+        });
       } else {
         resetPosition();
       }
@@ -182,7 +183,7 @@ const Index = () => {
                 }}
                 onPressOut={() => {
                   btnScaleDislike.value = withTiming(1, { duration: 120 });
-                  handleLike();
+                  handleDislike();
                 }}
               >
                 <Animated.View style={[styles.btn, btnAnimatedStyleDislike]}>
@@ -192,10 +193,11 @@ const Index = () => {
               <Pressable
                 onPressIn={() => {
                   btnScaleLike.value = withTiming(0.9, { duration: 120 });
-                  handleDislike();
                 }}
                 onPressOut={() => {
                   btnScaleLike.value = withTiming(1, { duration: 120 });
+                  handleLike();
+
                 }}
               >
                 <Animated.View style={[styles.btn, btnAnimatedStyleLike]}>
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 0,
+    bottom: -25,
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
