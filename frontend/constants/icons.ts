@@ -12,6 +12,7 @@ import arrowback from "@/assets/icons/arrow-back.png";
 import heart from "@/assets/icons/heart.png";
 import user from "@/assets/icons/user.png";
 import close from "@/assets/icons/close.png";
+import appIcon from "@/assets/icons/appIcon.png";
 
 
 export const icons = {
@@ -29,4 +30,5 @@ export const icons = {
   heart,
   user,
   close,
+  appIcon,
 };

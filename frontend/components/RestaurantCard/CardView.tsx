@@ -157,22 +157,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 40,
     position: "absolute",
-    bottom: 80,
+    bottom: 100,
     overflow: "hidden",
-    
-  },
-  linearGradient: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.5,
-    position: "absolute",
-    bottom: 0,
   },
   cardImage: {
     width: "100%",
     height: "100%",
     justifyContent: "flex-start",
     alignItems: "flex-start",
-    
   },
   image: {
     width: "100%",
@@ -182,8 +174,8 @@ const styles = StyleSheet.create({
   pressable: {
     position: "absolute",
     bottom: 15,
-    width: '90%',
-    height: '25%',
+    width: "90%",
+    height: "25%",
     alignSelf: "center",
   },
   description: {

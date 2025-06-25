@@ -1,83 +1,73 @@
-import { View, Image } from 'react-native'
-import React from 'react'
-import { Tabs } from 'expo-router'
-import { icons } from '@/constants/icons'
+import { View, Image } from "react-native";
+import React from "react";
+import { Tabs } from "expo-router";
+import { icons } from "@/constants/icons";
 
-const TabIcon = ({ color, icon, size = 40 }:any) => {
+const TabIcon = ({ color, icon, size = 40 }: any) => {
   return (
-        <Image
-              source={icon}
-              style={{
-                width: size,
-                height: size,
-                tintColor: color,
-              }}
-              resizeMode="contain"
-            />
-  )
-}
+    <Image
+      source={icon}
+      style={{
+        width: size,
+        height: size,
+        tintColor: color,
+      }}
+      resizeMode="contain"
+    />
+  );
+};
 
 const _layout = () => {
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#000000', // schwarzer Hintergrund
+          backgroundColor: "#171717", // schwarzer Hintergrund
           borderTopWidth: 0,
           height: 100,
           paddingTop: 25,
         },
         tabBarItemStyle: {
-          width: '100%',
-          height: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
         },
-        tabBarActiveTintColor: '#007AFF', // aktive Icon-Farbe
-        tabBarInactiveTintColor: '#ffffff', // inaktive Icon-Farbe
+        tabBarActiveTintColor: "#007AFF", // aktive Icon-Farbe
+        tabBarInactiveTintColor: "#ffffff", // inaktive Icon-Farbe
         headerShown: false,
         tabBarShowLabel: false,
       }}
     >
-      <Tabs.Screen 
+      <Tabs.Screen
         name="favorites"
         options={{
-            title: 'Favorites',
-            tabBarIcon: ({ color }) => (
-                <TabIcon
-              color={color}
-              icon={icons.favorites}
-              size={50}
-               />
-            ),
-        }}
-      />
-      <Tabs.Screen 
-        name="index"
-        options={{
-          title: 'Home',
+          title: "Favorites",
           tabBarIcon: ({ color }) => (
-            <TabIcon
-              color={color}
-              icon={icons.plus}
-               />
+            <TabIcon color={color} icon={icons.favorites} size={50} />
           ),
         }}
       />
-        <Tabs.Screen 
-          name="settings"
-          options={{
-            title: 'Settings',
-            tabBarIcon: ({ color }) => (
-              <TabIcon
-              color={color}
-              icon={icons.user}
-               />
-            ),
-          }}
-        />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <TabIcon color={color} icon={icons.plus} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color }) => (
+            <TabIcon color={color} icon={icons.user} />
+          ),
+        }}
+      />
     </Tabs>
-  )
-}
+  );
+};
 
-export default _layout
+export default _layout;

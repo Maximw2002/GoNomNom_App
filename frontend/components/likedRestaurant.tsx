@@ -5,48 +5,57 @@ import {
   ScrollView,
   Image,
   Pressable,
-  FlatList,
 } from "react-native";
 import React from "react";
 import images from "@/constants/images";
 import { icons } from "@/constants/icons";
 import Header from "@/components/Header";
-import data from "@/assets/data/data"; // Importiere die Daten
+import data from "@/assets/data/data";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import FavoriteCard from "@/components/likedRestaurant";
 
+const FavoriteCard = ({ item }: { item: any }) => {
+  const btnScaleLike = useSharedValue(1);
 
-const favorites = () => {
+  const btnAnimatedStyleLike = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScaleLike.value }],
+  }));
 
   return (
-    <View style={styles.container}>
-      <Header title="Deine Top Picks" back={false} />
+    <Pressable
+      onPressIn={() => {
+        btnScaleLike.value = withTiming(0.9, { duration: 120 });
+      }}
+      onPressOut={() => {
+        btnScaleLike.value = withTiming(1, { duration: 120 });
+      }}
+    >
+      <Animated.View style={[styles.card, btnAnimatedStyleLike]}>
+        <Image source={item.image} style={styles.Image} />
+        <LinearGradient
+          colors={[
+            "transparent",
+            "rgba(0,0,0,0.2)",
+            "rgba(0,0,0,0.4)",
+            "rgba(0,0,0,0.6)",
+            "rgba(0,0,0,0.8)",
+            "#171717",
+            "#171717",
+          ]}
+          style={styles.linearGradient}
+        />
+        <View style={styles.overlay}>
+          <Text style={styles.restaurantName}>{item.name}</Text>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+};
 
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ minHeight: "100%", paddingBottom: 100 }}
-      >
-      <View>
-        <FlatList
-        data={data}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <FavoriteCard item={item} />}
-        contentContainerStyle={{ minHeight: "100%", paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-      />
-      </View>
-    </ScrollView>
-  </View>
-);
-}
-
-export default favorites;
 
 const styles = StyleSheet.create({
   container: {
@@ -89,3 +98,5 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 });
+
+export default FavoriteCard;

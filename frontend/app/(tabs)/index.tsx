@@ -166,7 +166,7 @@ const Index = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Header title="GoNomNom" back={false} />
       <View style={styles.cardDeck}>
         {cards.length === 0 ? (
@@ -197,7 +197,6 @@ const Index = () => {
                 onPressOut={() => {
                   btnScaleLike.value = withTiming(1, { duration: 120 });
                   handleLike();
-
                 }}
               >
                 <Animated.View style={[styles.btn, btnAnimatedStyleLike]}>
@@ -208,7 +207,7 @@ const Index = () => {
           </>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -217,13 +216,13 @@ export default Index;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#171717", // Replace with your desired color or use a theme
   },
   cardDeck: {
     flex: 1,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    backgroundColor: "#000000", // Replace with your desired color or use a theme
+    backgroundColor: "#171717", // Replace with your desired color or use a theme
     alignItems: "center",
     justifyContent: "center",
   },
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: -25,
+    bottom: 8,
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",

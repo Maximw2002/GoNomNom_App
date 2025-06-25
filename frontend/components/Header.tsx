@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { icons } from "@/constants/icons";
+import images from "@/constants/images";
 
 type HeaderProps = {
   title: string;
@@ -20,36 +21,44 @@ const Header: React.FC<HeaderProps> = ({ title, back }) => {
   if (!fontsLoaded) return null; // <–– nicht blockieren!
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
-      <View style={styles.container}>
-        {back && <Image source={icons.arrowback} style={styles.backIcon} />}
+    <View style={styles.container}>
+      <Image source={images.backGround} style={styles.backGroundImage} />
+      {back && <Image source={icons.arrowback} style={styles.backIcon} />}
 
-        <Text style={styles.title}>{title}</Text>
-      </View>
-    </SafeAreaView>
+      <Text style={styles.title}>{title}</Text>
+    </View>
   );
 };
 
 export default Header;
 
 const styles = StyleSheet.create({
-  safe: {
-    backgroundColor: "#000", // identisch zum Screen
-  },
   container: {
-    height: 100,
-    justifyContent: "center",
+    height: 160,
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   title: {
     fontFamily: "OrbitronBold",
     fontSize: 30,
     color: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: 80,
+    zIndex: 2, // Titel über dem Hintergrundbild
   },
   backIcon: {
     position: "absolute",
     left: 16,
     width: 50,
     height: 50,
+  },
+  backGroundImage: {
+    width: "100%",
+    height: 250,
+    resizeMode: "cover",
+    tintColor: "#007AFF",
+    zIndex: 1, // Hintergrundbild hinter dem Header
   },
 });

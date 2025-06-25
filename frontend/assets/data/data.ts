@@ -41,6 +41,36 @@ const data = [
         address: "Kaiserstraße 20, Mannheim",
         priceRange: "€€",
         image: images.restaurantImage3
+    },
+    {
+        id: 4,
+        name: "Trattoria Roma",
+        cuisine: "Italienisch",
+        rating: 4.6,
+        distance: "1.0 km",
+        address: "Marktplatz 3, Mannheim",
+        priceRange: "€€",
+        image: images.restaurantImage
+    },
+    {
+        id: 5,
+        name: "Tokyo Sushi",
+        cuisine: "Japanisch",
+        rating: 4.4,
+        distance: "2.0 km",
+        address: "Schlossstraße 8, Mannheim",
+        priceRange: "€€€",
+        image: images.restaurantImage2
+    },
+    {
+        id: 6,
+        name: "Bombay Express",
+        cuisine: "Indisch",
+        rating: 4.3,
+        distance: "1.5 km",
+        address: "Augustaanlage 15, Mannheim",
+        priceRange: "€",
+        image: images.restaurantImage3
     }
 ];
 
