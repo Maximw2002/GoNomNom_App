@@ -18,7 +18,8 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import FavoriteCard from "@/components/likedRestaurant";
+import FavoriteCard from "@/components/FavoriteCard";
+
 
 
 const favorites = () => {
@@ -26,25 +27,16 @@ const favorites = () => {
   return (
     <View style={styles.container}>
       <Header title="Deine Top Picks" back={false} />
-
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ minHeight: "100%", paddingBottom: 100 }}
-      >
-      <View>
-        <FlatList
+      <FlatList
         data={data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <FavoriteCard item={item} />}
         contentContainerStyle={{ minHeight: "100%", paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       />
-      </View>
-    </ScrollView>
-  </View>
-);
-}
+    </View>
+  );
+};
 
 export default favorites;
 

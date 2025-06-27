@@ -14,11 +14,11 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ title, back }) => {
   // Fonts nur einmal für die App laden (besser im Root),
   // hier aber für Demo weiter lokal:
-  const [fontsLoaded] = useFonts({
-    OrbitronBold: require("@/assets/fonts/Orbitron-Bold.ttf"),
-  });
+  // const [fontsLoaded] = useFonts({
+  //   OrbitronBold: require("@/assets/fonts/Orbitron-Bold.ttf"),
+  // });
 
-  if (!fontsLoaded) return null; // <–– nicht blockieren!
+  // if (!fontsLoaded) return null; // <–– nicht blockieren!
 
   return (
     <View style={styles.container}>
@@ -35,17 +35,19 @@ export default Header;
 const styles = StyleSheet.create({
   container: {
     height: 160,
+    width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
   },
   title: {
-    fontFamily: "OrbitronBold",
-    fontSize: 30,
+    // fontFamily: "OrbitronBold",
+    fontSize: 40,
     color: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
+    fontWeight: "bold",
     position: "absolute",
-    top: 80,
+    top: 60,
     zIndex: 2, // Titel über dem Hintergrundbild
   },
   backIcon: {

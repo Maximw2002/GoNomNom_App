@@ -7,6 +7,9 @@ import {
   Image,
   Pressable,
   PanResponder,
+  Modal,
+  TextInput,
+  FlatList,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import React, { use, useCallback, useRef, useState } from "react";
@@ -24,6 +27,8 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import FriendsModal from "../../components/Modals/FriendsModal";
+import PrefModal from "../../components/Modals/PrefModal";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -37,6 +42,23 @@ const Index = () => {
   const translateY = useSharedValue(0); // Placeholder for SharedValue
   const nextCardScale = useSharedValue(0.9);
   const dummyTranslate = useSharedValue(0); // Placeholder for SharedValue
+  const [friendsModalVisible, setFriendsModalVisible] = useState(false);
+  const [prefModalVisible, setPrefModalVisible] = useState(false);
+  const [friends, setFriends] = useState<string[]>(["Anna"]);
+  const [search, setSearch] = useState("");
+  const [allUsers] = useState<string[]>([
+    "Anna",
+    "Ben",
+    "Chris",
+    "Dora",
+    "Ella",
+    "Finn",
+    "Gina",
+    "Hugo",
+    "Ivy",
+    "Jack",
+    "Kara",
+  ]);
 
   const resetPosition = useCallback(() => {
     translateX.value = withTiming(0, { duration: RESET_DURATION });
@@ -135,12 +157,20 @@ const Index = () => {
 
   const btnScaleLike = useSharedValue(1);
   const btnScaleDislike = useSharedValue(1);
+  const btnScalePref = useSharedValue(1);
+  const btnScaleGroup = useSharedValue(1);
 
   const btnAnimatedStyleLike = useAnimatedStyle(() => ({
     transform: [{ scale: btnScaleLike.value }],
   }));
   const btnAnimatedStyleDislike = useAnimatedStyle(() => ({
     transform: [{ scale: btnScaleDislike.value }],
+  }));
+  const btnAnimatedStylePref = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScalePref.value }],
+  }));
+  const btnAnimatedStyleGroup = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScaleGroup.value }],
   }));
 
   const renderCard = useCallback(
@@ -165,9 +195,74 @@ const Index = () => {
     ]
   );
 
+  // Filter users that are not already friends and match the search
+  const filteredUsers = allUsers.filter(
+    (user) =>
+      user.toLowerCase().includes(search.toLowerCase()) &&
+      !friends.includes(user)
+  );
+
   return (
     <View style={styles.container}>
-      <Header title="GoNomNom" back={false} />
+      <View style={styles.HeaderContainer}>
+        <Header title="GoNomNom" back={false} />
+
+        <Pressable
+          onPressIn={() => {
+            btnScalePref.value = withTiming(0.8, { duration: 120 });
+          }}
+          onPressOut={() => {
+            btnScalePref.value = withTiming(1, { duration: 120 });
+            setPrefModalVisible(true);
+          }}
+          style={[styles.iconPressable, styles.prefIconPosition]}
+        >
+          <Animated.View style={[styles.prefContainer, btnAnimatedStylePref]}>
+            <Image source={icons.prefIcon} style={styles.prefIcon} />
+          </Animated.View>
+        </Pressable>
+
+        <Pressable
+          onPressIn={() => {
+            btnScaleGroup.value = withTiming(0.8, { duration: 120 });
+          }}
+          onPressOut={() => {
+            btnScaleGroup.value = withTiming(1, { duration: 120 });
+            setFriendsModalVisible(true); // Modal öffnen
+          }}
+          style={[styles.iconPressable, styles.groupIconPosition]}
+        >
+          <Animated.View style={[styles.groupContainer, btnAnimatedStyleGroup]}>
+            <Image source={icons.group} style={styles.groupIcon} />
+          </Animated.View>
+        </Pressable>
+      </View>
+
+      <PrefModal
+        visible={prefModalVisible}
+        onClose={() => setPrefModalVisible(false)}
+        friends={friends}
+        search={search}
+        setSearch={setSearch}
+        filteredUsers={filteredUsers}
+        onAddFriend={(name) => {
+          setFriends([...friends, name]);
+        }}
+      />
+
+      {/* Modal für Freunde */}
+      <FriendsModal
+        visible={friendsModalVisible}
+        onClose={() => setFriendsModalVisible(false)}
+        friends={friends}
+        search={search}
+        setSearch={setSearch}
+        filteredUsers={filteredUsers}
+        onAddFriend={(name) => {
+          setFriends([...friends, name]);
+        }}
+      />
+
       <View style={styles.cardDeck}>
         {cards.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -266,5 +361,55 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
     textAlign: "center",
+  },
+  groupIcon: {
+    width: 35,
+    height: 35,
+  },
+  groupContainer: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 6,
+  },
+  prefIcon: {
+    width: 35,
+    height: 35,
+  },
+  prefContainer: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 6,
+  },
+  HeaderContainer: {
+    width: "100%",
+    height: 160, // gleiche Höhe wie dein Header!
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 5,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: "center",
+    width: SCREEN_WIDTH,
+  },
+  iconPressable: {
+    // Add any additional styles for the Pressable components here
+  },
+  prefIconPosition: {
+    position: "absolute",
+    left: 16,
+    top: 60, // Passe an, damit das Icon auf dem Header liegt
+    zIndex: 10,
+  },
+  groupIconPosition: {
+    position: "absolute",
+    right: 16,
+    top: 60, // Passe an, damit das Icon auf dem Header liegt
+    zIndex: 10,
   },
 });

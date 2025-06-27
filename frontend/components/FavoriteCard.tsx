@@ -56,7 +56,6 @@ const FavoriteCard = ({ item }: { item: any }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -93,8 +92,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
     position: "absolute",
     width: "90%",
-    height: 100,
-    borderRadius: 15,
+    height: 80,
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
     bottom: 0,
   },
 });

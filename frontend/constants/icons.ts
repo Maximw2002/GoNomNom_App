@@ -13,6 +13,8 @@ import heart from "@/assets/icons/heart.png";
 import user from "@/assets/icons/user.png";
 import close from "@/assets/icons/close.png";
 import appIcon from "@/assets/icons/appIcon.png";
+import group from "@/assets/icons/group.png";
+import prefIcon from "@/assets/icons/pref.png";
 
 
 export const icons = {
@@ -31,4 +33,6 @@ export const icons = {
   user,
   close,
   appIcon,
+  group,
+  prefIcon,
 };
