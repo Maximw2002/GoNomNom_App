@@ -1,0 +1,79 @@
+import React, { FC } from "react";
+import { Pressable, Text, Image, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import { images } from "@/constants/images";
+import { icons } from "@/constants/icons";
+
+type Props = {
+  name: string;
+  onPress: () => void;
+  buttonStyle?: any;
+  textStyle?: any;
+  icon?: any;
+};
+
+const SettingsButton: FC<Props> = ({
+  name,
+  onPress,
+  buttonStyle,
+  textStyle,
+  icon,
+}) => {
+  const btnScale = useSharedValue(1);
+  const btnColor = useSharedValue("#fff");
+  const txtColor = useSharedValue("#000");
+  const btnAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScale.value }],
+    backgroundColor: btnColor.value,
+  }));
+  const txtAnimatedStyle = useAnimatedStyle(() => ({
+    color: txtColor.value,
+  }));
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    tintColor: txtColor.value,
+  }));
+
+  return (
+    <Pressable
+      onPressIn={() => {
+        btnScale.value = withTiming(0.9, { duration: 200 });
+        btnColor.value = withTiming("#007AFF", { duration: 200 });
+        txtColor.value = withTiming("#fff", { duration: 200 });
+      }}
+      onPressOut={() => {
+        btnScale.value = withTiming(1, { duration: 200 });
+        btnColor.value = withTiming("#fff", { duration: 200 });
+        txtColor.value = withTiming("#000", { duration: 200 });
+      }}
+      onPress={() => onPress()}
+    >
+      <Animated.View style={[buttonStyle, btnAnimatedStyle]}>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", width: "100%" }}
+        >
+          <Animated.Text style={[textStyle, txtAnimatedStyle]}>
+            {name}
+          </Animated.Text>
+          <Animated.Image
+            source={icon}
+            style={[
+              {
+                width: 20,
+                height: 20,
+                position: "absolute",
+                right: 0,
+              },
+              iconAnimatedStyle,
+            ]}
+          />
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+};
+
+export default SettingsButton;

@@ -15,7 +15,8 @@ import close from "@/assets/icons/close.png";
 import appIcon from "@/assets/icons/appIcon.png";
 import group from "@/assets/icons/group.png";
 import prefIcon from "@/assets/icons/pref.png";
-
+import right from "@/assets/icons/right.png";
+import logout from "@/assets/icons/logout.png";
 
 export const icons = {
   favorites,
@@ -35,4 +36,6 @@ export const icons = {
   appIcon,
   group,
   prefIcon,
+  right,
+  logout,
 };

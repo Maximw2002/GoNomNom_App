@@ -38,7 +38,8 @@ const _layout = () => {
           tabBarInactiveTintColor: "#ffffff", // inaktive Icon-Farbe
           headerShown: false,
           tabBarShowLabel: false,
-          animation: "shift", // Animation für den Tab-Wechsel
+          animation: "shift",
+          // Animation für den Tab-Wechsel
         }}
       >
         <Tabs.Screen
