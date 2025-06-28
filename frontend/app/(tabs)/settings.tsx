@@ -12,45 +12,42 @@ const settings = () => {
     <View style={styles.Container}>
       <Header title="Profil" back={false} />
       <View style={styles.settingsWrapper}>
-        <View>
-          <SettingsButton
-            name="Benutzerprofil"
-            onPress={() => router.push("/Settings/User")}
-            buttonStyle={styles.settingsButton}
-            textStyle={styles.settingsButtonText}
-            icon={icons.right}
-          />
-          <SettingsButton
-            name="FAQ"
-            onPress={() => router.push("/Settings/Faq")}
-            buttonStyle={styles.settingsButton}
-            textStyle={styles.settingsButtonText}
-            icon={icons.right}
-          />
-          <SettingsButton
-            name="Impressum"
-            onPress={() => router.push("/Settings/LegalNotice")}
-            buttonStyle={styles.settingsButton}
-            textStyle={styles.settingsButtonText}
-            icon={icons.right}
-          />
-          <SettingsButton
-            name="AGBs"
-            onPress={() => router.push("/Settings/Agbs")}
-            buttonStyle={styles.settingsButton}
-            textStyle={styles.settingsButtonText}
-            icon={icons.right}
-          />
-        </View>
-        <View>
-          <SettingsButton
-            name="Abmelden"
-            onPress={() => router.push("/Settings/Agbs")}
-            buttonStyle={styles.settingsButton}
-            textStyle={styles.settingsButtonText}
-            icon={icons.logout}
-          />
-        </View>
+        <SettingsButton
+          name="Benutzerprofil"
+          onPress={() => router.push("/Settings/User")}
+          buttonStyle={styles.settingsButton}
+          textStyle={styles.settingsButtonText}
+          icon={icons.right}
+        />
+        <SettingsButton
+          name="FAQ"
+          onPress={() => router.push("/Settings/Faq")}
+          buttonStyle={styles.settingsButton}
+          textStyle={styles.settingsButtonText}
+          icon={icons.right}
+        />
+        <SettingsButton
+          name="Impressum"
+          onPress={() => router.push("/Settings/LegalNotice")}
+          buttonStyle={styles.settingsButton}
+          textStyle={styles.settingsButtonText}
+          icon={icons.right}
+        />
+        <SettingsButton
+          name="AGBs"
+          onPress={() => router.push("/Settings/Agbs")}
+          buttonStyle={styles.settingsButton}
+          textStyle={styles.settingsButtonText}
+          icon={icons.right}
+        />
+        <SettingsButton
+          name="Abmelden"
+          onPress={() => router.push("/login")}
+          buttonStyle={styles.logoutButton}
+          textStyle={styles.settingsButtonText}
+          icon={icons.logout}
+          buttonColor="#FF0101"
+        />
       </View>
     </View>
   );
@@ -84,6 +81,23 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#333",
   },
+  logoutButton: {
+    height: 50,
+    width: 200,
+    backgroundColor: "#FF0101",
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 120,
+    marginTop: 120,
+    marginHorizontal: 5,
+    // Schatten für Android
+    elevation: 8,
+    borderWidth: 0.5,
+    borderColor: "#333",
+  },
   settingsButtonSelected: {
     backgroundColor: "#007AFF",
   },
@@ -94,9 +108,8 @@ const styles = StyleSheet.create({
   },
   settingsWrapper: {
     flex: 1,
-    justifyContent: "flex-start",
-    borderColor: "#fff",
-    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

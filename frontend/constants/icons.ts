@@ -17,6 +17,9 @@ import group from "@/assets/icons/group.png";
 import prefIcon from "@/assets/icons/pref.png";
 import right from "@/assets/icons/right.png";
 import logout from "@/assets/icons/logout.png";
+import edit from "@/assets/icons/edit.png";
+import deleteIcon from "@/assets/icons/delete.png";
+import closeModal from "@/assets/icons/closeModal.png";
 
 export const icons = {
   favorites,
@@ -38,4 +41,7 @@ export const icons = {
   prefIcon,
   right,
   logout,
+  edit,
+  deleteIcon,
+  closeModal,
 };

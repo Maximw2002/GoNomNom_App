@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import { Stack } from "expo-router";
 
-const ProfilePicture = () => {
+const EditProfilePicture = () => {
   return (
     <>
       <Stack.Screen
@@ -19,4 +19,4 @@ const ProfilePicture = () => {
   );
 };
 
-export default ProfilePicture;
+export default EditProfilePicture;
