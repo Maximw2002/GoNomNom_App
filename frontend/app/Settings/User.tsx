@@ -34,7 +34,9 @@ const User = () => {
           title: "Benutzereinstellungen",
           headerBackTitle: "Profil",
           headerStyle: { backgroundColor: "#171717" },
-          headerTitleStyle: { color: "#fff" }, // Header-Hintergrundfarbe und Textfarbe
+          headerTitleStyle: { color: "#fff" },
+          headerShadowVisible: false, // für Expo Router/React Navigation 6+
+          // Header-Hintergrundfarbe und Textfarbe
         }}
       />
       <View style={styles.container}>
@@ -176,8 +178,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#171717",
     justifyContent: "flex-start",
     alignItems: "center",
-    borderColor: "#fff",
-    borderWidth: 1,
   },
   imageContainer: {
     justifyContent: "center",

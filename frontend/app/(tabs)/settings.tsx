@@ -42,7 +42,7 @@ const settings = () => {
         />
         <SettingsButton
           name="Abmelden"
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("/Authentication/overview")}
           buttonStyle={styles.logoutButton}
           textStyle={styles.settingsButtonText}
           icon={icons.logout}

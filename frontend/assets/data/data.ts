@@ -86,4 +86,13 @@ export const kitchenTypes = [
   "Mediterran",
 ];
 
+export const profilePictures = [
+  images.profilePicture,
+  images.profilePicture1,
+  images.profilePicture2,
+  images.profilePicture3,
+  images.profilePicture4,
+  images.profilePicture5,
+];
+
 export default data;
