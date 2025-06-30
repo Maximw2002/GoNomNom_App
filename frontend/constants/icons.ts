@@ -20,6 +20,8 @@ import logout from "@/assets/icons/logout.png";
 import edit from "@/assets/icons/edit.png";
 import deleteIcon from "@/assets/icons/delete.png";
 import closeModal from "@/assets/icons/closeModal.png";
+import login from "@/assets/icons/login.png";
+import register from "@/assets/icons/add.png";
 
 export const icons = {
   favorites,
@@ -44,4 +46,6 @@ export const icons = {
   edit,
   deleteIcon,
   closeModal,
+  login,
+  register,
 };

@@ -39,12 +39,11 @@ const FavoriteCard = ({ item }: { item: any }) => {
         <LinearGradient
           colors={[
             "transparent",
-            "rgba(0,0,0,0.2)",
-            "rgba(0,0,0,0.4)",
-            "rgba(0,0,0,0.6)",
-            "rgba(0,0,0,0.8)",
-            "#171717",
-            "#171717",
+            "rgba(23,23,23,0.2)",
+            "rgba(23,23,23,0.4)",
+            "rgba(23,23,23,0.6)",
+            "rgba(23,23,23,0.8)",
+            "rgba(23,23,23,1)",
           ]}
           style={styles.linearGradient}
         />

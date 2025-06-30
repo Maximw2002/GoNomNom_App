@@ -15,6 +15,7 @@ type Props = {
   textStyle?: any;
   icon?: any;
   buttonColor?: string;
+  textColor?: string;
 };
 
 const SettingsButton: FC<Props> = ({
@@ -24,10 +25,11 @@ const SettingsButton: FC<Props> = ({
   textStyle,
   icon,
   buttonColor,
+  textColor,
 }) => {
   const btnScale = useSharedValue(1);
   const btnColor = useSharedValue(buttonColor || "#fff");
-  const txtColor = useSharedValue("#000");
+  const txtColor = useSharedValue(textColor || "#000");
   const btnAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: btnScale.value }],
     backgroundColor: btnColor.value,
@@ -51,7 +53,7 @@ const SettingsButton: FC<Props> = ({
       onPressOut={() => {
         btnScale.value = withTiming(1, { duration: 200 });
         btnColor.value = withTiming(buttonColor || "#fff", { duration: 200 });
-        txtColor.value = withTiming("#000", { duration: 200 });
+        txtColor.value = withTiming(textColor || "#000", { duration: 200 });
       }}
       onPress={() => onPress()}
     >
@@ -62,18 +64,20 @@ const SettingsButton: FC<Props> = ({
           <Animated.Text style={[textStyle, txtAnimatedStyle]}>
             {name}
           </Animated.Text>
-          <Animated.Image
-            source={icon}
-            style={[
-              {
-                width: 20,
-                height: 20,
-                position: "absolute",
-                right: 0,
-              },
-              iconAnimatedStyle,
-            ]}
-          />
+          {icon && (
+            <Animated.Image
+              source={icon}
+              style={[
+                {
+                  width: 20,
+                  height: 20,
+                  position: "absolute",
+                  right: 0,
+                },
+                iconAnimatedStyle,
+              ]}
+            />
+          )}
         </View>
       </Animated.View>
     </Pressable>
