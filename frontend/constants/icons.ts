@@ -22,6 +22,8 @@ import deleteIcon from "@/assets/icons/delete.png";
 import closeModal from "@/assets/icons/closeModal.png";
 import login from "@/assets/icons/login.png";
 import register from "@/assets/icons/add.png";
+import lock from "@/assets/icons/lock.png";
+import email from "@/assets/icons/email.png";
 
 export const icons = {
   favorites,
@@ -48,4 +50,6 @@ export const icons = {
   closeModal,
   login,
   register,
+  lock,
+  email,
 };

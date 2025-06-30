@@ -34,10 +34,15 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "assetBundlePatterns": ["**/*"],
+    "fonts": {
+      "BalooPaaji2-ExtraBold": "./assets/fonts/BalooPaaji2-ExtraBold.ttf"
     }
   }
 }

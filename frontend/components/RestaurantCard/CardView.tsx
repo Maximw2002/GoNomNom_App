@@ -20,6 +20,8 @@ import Animated, {
   withTiming,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { router, useRouter } from "expo-router";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const ROTATION_RANGE = 15;
@@ -45,6 +47,8 @@ const CardView: FC<CardViewProps> = ({
 }) => {
   const isTopCard = index === 0;
   const isSecondCard = index === 1;
+
+  const router = useRouter();
 
   const leftOffset = useSharedValue(0);
   const cardScale = useSharedValue(isTopCard ? 1 : isSecondCard ? 0.9 : 0.8);
@@ -114,7 +118,7 @@ const CardView: FC<CardViewProps> = ({
   return (
     <Animated.View style={[styles.card, animationStyle]} {...panHandlers}>
       <View style={styles.cardImage}>
-        <Image source={card.image} style={styles.image} />
+        <Image source={card.image[0]} style={styles.image} />
       </View>
 
       <Pressable
@@ -124,22 +128,48 @@ const CardView: FC<CardViewProps> = ({
         onPressOut={() => {
           descriptionScale.value = withTiming(1, { duration: 120 });
         }}
+        onPress={() =>
+          router.push({
+            pathname: "/RestaurantDetails/[id]",
+            params: { id: card.id },
+          })
+        }
         style={styles.pressable}
       >
         <Animated.View style={[styles.description, descriptionAnimatedStyle]}>
+          {/* Restaurant Name */}
           <Text style={styles.cardTitle}>{card.name}</Text>
-
+          {/* Adresse */}
           <View style={styles.row}>
-            <Text style={styles.metaGrey}>{card.cuisine}</Text>
-            <Text style={styles.metaBold}>{card.priceRange}</Text>
+            <MaterialIcons name="place" size={16} color="#ffb300" />
+            <Text style={styles.metaAddress}>{card.address}</Text>
           </View>
-
-          <View style={styles.row}>
-            <Text style={styles.metaStar}> {card.rating} ⭐</Text>
-            <Text style={styles.metaGrey}>• {card.distance}</Text>
+          {/* Info-Boxen */}
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "center",
+              marginTop: 1,
+            }}
+          >
+            <View style={styles.infoBox}>
+              <MaterialIcons name="restaurant-menu" size={16} color="#4fc3f7" />
+              <Text style={styles.infoText}>{card.cuisine}</Text>
+            </View>
+            <View style={styles.infoBox}>
+              <FontAwesome name="star" size={16} color="#FFD700" />
+              <Text style={styles.infoText}>{card.rating} / 5</Text>
+            </View>
+            <View style={styles.infoBox}>
+              <MaterialIcons name="euro" size={16} color="#81c784" />
+              <Text style={styles.infoText}>{card.priceRange}</Text>
+            </View>
+            <View style={styles.infoBox}>
+              <MaterialIcons name="directions-walk" size={16} color="#f06292" />
+              <Text style={styles.infoText}>{card.distance}</Text>
+            </View>
           </View>
-
-          <Text style={styles.metaAddress}>{card.address}</Text>
         </Animated.View>
       </Pressable>
     </Animated.View>
@@ -175,18 +205,25 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 15,
     width: "90%",
-    height: "25%",
+    height: "30%",
     alignSelf: "center",
   },
   description: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#rgb(41, 37, 37)",
     justifyContent: "center",
     alignItems: "flex-start",
-    paddingLeft: 30,
-    paddingBottom: 16,
-    paddingTop: 16,
+    paddingLeft: 20,
+    paddingVertical: 20,
     borderRadius: 40,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   name: {
     fontWeight: "bold",
@@ -195,7 +232,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: "#fff",
     marginBottom: 4,
   },
   row: {
@@ -223,5 +260,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#888",
     fontStyle: "italic",
+  },
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#rgb(30, 30, 30)",
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    marginRight: 6,
+    marginBottom: 6,
+  },
+  infoText: {
+    color: "#fff",
+    fontSize: 13,
+    marginLeft: 4,
+    fontWeight: "600",
   },
 });

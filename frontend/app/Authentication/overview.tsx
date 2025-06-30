@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { Stack } from "expo-router";
@@ -8,14 +8,18 @@ import Animated, { useSharedValue } from "react-native-reanimated";
 import SettingsButton from "@/components/SettingsButton";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
+import * as Font from "expo-font";
+import AppLoading from "expo-app-loading"; // oder SplashScreen
 
 const overview = () => {
   const router = useRouter();
+
   return (
     <>
       <Stack.Screen
         options={{
           title: "",
+          headerBackVisible: false, // Versteckt den Zurück-Button und Text
           headerBackTitle: "Zurück",
           headerTransparent: true, // Header-Hintergrund transparent
           headerTintColor: "#fff", // Schrift/Icon-Farbe
@@ -23,28 +27,6 @@ const overview = () => {
         }}
       />
       <View style={styles.container}>
-        <View style={styles.backGround}>
-          <Image
-            source={require("@/assets/images/login.png")}
-            style={{ width: "100%", height: "100%" }}
-          />
-          <LinearGradient
-            colors={[
-              "transparent",
-              "rgba(23, 23, 23, 0.4)",
-              "rgba(23, 23, 23, 0.6)",
-              "rgba(23, 23, 23, 0.8)",
-              "rgba(23, 23, 23, 1)",
-            ]}
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          />
-        </View>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>GoNomNom</Text>
         </View>
@@ -66,6 +48,30 @@ const overview = () => {
             icon={icons.login}
           />
         </View>
+        <View style={styles.backGround}>
+          <Image
+            source={require("@/assets/images/login.png")}
+            style={{ width: "100%", height: "100%" }}
+          />
+          <LinearGradient
+            colors={[
+              "rgba(23, 23, 23, 1)",
+              "rgba(23, 23, 23, 0.95)",
+              "rgba(23, 23, 23, 0.85)",
+              "rgba(23, 23, 23, 0.75)",
+              "rgba(23, 23, 23, 0.7)",
+              "rgba(23, 23, 23, 0.6)",
+              "transparent",
+            ]}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          />
+        </View>
       </View>
     </>
   );
@@ -81,29 +87,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backGround: {
+    position: "absolute",
+    bottom: 0,
     width: "100%",
-    height: "60%",
+    height: "87%",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 0, // Ensure background is behind other elements
   },
   titleContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 0,
+    marginTop: 110,
+    marginBottom: 150,
+    zIndex: 1,
+    // Ensure title is above the background
   },
   title: {
-    position: "absolute",
     fontSize: 50,
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 60,
+    fontFamily: "BalooPaaji2-ExtraBold", // Custom Font
   },
   btnContainer: {
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 67,
+    zIndex: 1, // Ensure buttons are above the background
   },
   createButton: {
     height: 50,

@@ -20,10 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import FavoriteCard from "@/components/FavoriteCard";
 
-
-
 const favorites = () => {
-
   return (
     <View style={styles.container}>
       <Header title="Deine Top Picks" back={false} />

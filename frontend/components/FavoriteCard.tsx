@@ -17,6 +17,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { router, useRouter } from "expo-router";
 
 const FavoriteCard = ({ item }: { item: any }) => {
   const btnScaleLike = useSharedValue(1);
@@ -24,6 +25,8 @@ const FavoriteCard = ({ item }: { item: any }) => {
   const btnAnimatedStyleLike = useAnimatedStyle(() => ({
     transform: [{ scale: btnScaleLike.value }],
   }));
+
+  const router = useRouter();
 
   return (
     <Pressable
@@ -33,9 +36,15 @@ const FavoriteCard = ({ item }: { item: any }) => {
       onPressOut={() => {
         btnScaleLike.value = withTiming(1, { duration: 120 });
       }}
+      onPress={() =>
+        router.push({
+          pathname: "/RestaurantDetails/[id]",
+          params: { id: item.id },
+        })
+      } // Navigate to RestaurantDetails
     >
       <Animated.View style={[styles.card, btnAnimatedStyleLike]}>
-        <Image source={item.image} style={styles.Image} />
+        <Image source={item.image[0]} style={styles.Image} />
         <LinearGradient
           colors={[
             "transparent",

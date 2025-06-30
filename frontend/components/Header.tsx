@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    // fontFamily: "OrbitronBold",
-    fontSize: 40,
+    fontFamily: "BalooPaaji2-ExtraBold", // Custom Font
+    fontSize: 45,
     color: "#ffffff",
     justifyContent: "center",
     alignItems: "center",

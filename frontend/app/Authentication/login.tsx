@@ -1,16 +1,35 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, Image, Pressable } from "react-native";
+import React, { useState } from "react";
 import images from "@/constants/images";
 import { BlurView } from "expo-blur";
 import { Stack } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, { useSharedValue } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import SettingsButton from "@/components/SettingsButton";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
+import AuthInput from "@/components/AuthInput";
 
 const login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
+
+  const btnScale = useSharedValue(1);
+  const btnColor = useSharedValue("#007AFF");
+  const txtColor = useSharedValue("#fff");
+  const btnAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScale.value }],
+    backgroundColor: btnColor.value,
+  }));
+  const txtAnimatedStyle = useAnimatedStyle(() => ({
+    color: txtColor.value,
+  }));
+
   return (
     <>
       <Stack.Screen
@@ -18,11 +37,49 @@ const login = () => {
           title: "",
           headerBackTitle: "Zurück",
           headerTransparent: true, // Header-Hintergrund transparent
-          headerTintColor: "#fff", // Schrift/Icon-Farbe
           headerShadowVisible: false,
         }}
       />
       <View style={styles.container}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Login</Text>
+        </View>
+        <View style={styles.btnContainer}>
+          <AuthInput
+            placeholder="Username"
+            icon={icons.user}
+            value={username}
+            onChangeText={setUsername}
+          />
+          <AuthInput
+            placeholder="Password"
+            icon={icons.lock}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <Pressable
+            onPressIn={() => {
+              btnScale.value = withTiming(0.9, { duration: 200 });
+              btnColor.value = withTiming("#fff", {
+                duration: 200,
+              });
+              txtColor.value = withTiming("#000", { duration: 200 });
+            }}
+            onPressOut={() => {
+              btnScale.value = withTiming(1, { duration: 200 });
+              btnColor.value = withTiming("#007AFF", { duration: 200 });
+              txtColor.value = withTiming("#fff", { duration: 200 });
+            }}
+            onPress={() => console.log("Register pressed")}
+          >
+            <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
+              <Animated.Text style={[styles.regTextStyle, txtAnimatedStyle]}>
+                Login
+              </Animated.Text>
+            </Animated.View>
+          </Pressable>
+        </View>
         <View style={styles.backGround}>
           <Image
             source={require("@/assets/images/login.png")}
@@ -30,11 +87,13 @@ const login = () => {
           />
           <LinearGradient
             colors={[
-              "transparent",
-              "rgba(23, 23, 23, 0.4)",
-              "rgba(23, 23, 23, 0.6)",
-              "rgba(23, 23, 23, 0.8)",
               "rgba(23, 23, 23, 1)",
+              "rgba(23, 23, 23, 0.95)",
+              "rgba(23, 23, 23, 0.85)",
+              "rgba(23, 23, 23, 0.75)",
+              "rgba(23, 23, 23, 0.7)",
+              "rgba(23, 23, 23, 0.6)",
+              "transparent",
             ]}
             style={{
               position: "absolute",
@@ -45,10 +104,6 @@ const login = () => {
             }}
           />
         </View>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>GoNomNom</Text>
-        </View>
-        <View style={styles.btnContainer}></View>
       </View>
     </>
   );
@@ -64,22 +119,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backGround: {
+    position: "absolute",
+    bottom: 0,
     width: "100%",
-    height: "60%",
+    height: "87%",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 0, // Ensure background is behind other elements
   },
   titleContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 0,
+    marginTop: 110,
+    marginBottom: 70,
+    zIndex: 1, // Ensure title is above the background
   },
   title: {
-    position: "absolute",
-    fontSize: 50,
+    fontSize: 45,
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 60,
+    fontFamily: "BalooPaaji2-ExtraBold", // Custom Font
+  },
+  btnContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1, // Ensure buttons are above the background
+  },
+  regBtnStyle: {
+    width: 250,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    height: 50,
+    marginTop: 48,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  regTextStyle: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
