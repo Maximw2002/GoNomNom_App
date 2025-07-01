@@ -1,11 +1,10 @@
 const express = require('express');
 const { db } = require('../../firebase');
-const { 
-    collection, query, doc, getDocs, getDoc, updateDoc, where
+const {
+  collection, query, doc, getDocs, getDoc, updateDoc, where
 } = require('firebase/firestore');
 
 const router = express.Router();
-const restaurantReference = collection(db, 'restaurants');
 const userReference = collection(db, 'users');
 
 // Utility to transform Firestore query snapshot to plain array
@@ -18,30 +17,6 @@ const extractDocs = async (reference) => {
   return results;
 };
 
-// Get all restaurants
-router.get('/restaurants/all', async (req, res) => {
-  try {
-    const q = query(restaurantReference);
-    const restaurants = await extractDocs(q);
-    res.json(restaurants);
-  } catch (err) {
-    console.error('Error fetching restaurants:', err);
-    res.status(400).json({ message: 'Failed to retrieve restaurant data.' });
-  }
-});
-
-// Get single restaurant by name
-router.get('/restaurants/restaurant', async (req, res) => {
-  try {
-    const { restaurant } = req.query;
-    const q = query(restaurantReference, where("restaurantName", "==", restaurant));
-    const result = await extractDocs(q);
-    res.json(result);
-  } catch (err) {
-    console.error('Error fetching single restaurant:', err);
-    res.status(400).json({ message: 'Failed to retrieve restaurant.' });
-  }
-});
 
 // Get all users
 router.get('/users/test', async (req, res) => {
