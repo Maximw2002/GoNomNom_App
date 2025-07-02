@@ -1,7 +1,6 @@
 import { View, Text, Image, Pressable, TouchableHighlight } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
-import Header from "@/components/Header";
 import { StyleSheet } from "react-native";
 import images from "@/constants/images";
 import Animated, {
@@ -12,9 +11,35 @@ import Animated, {
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 import DeleteAccModal from "@/components/Modals/DeleteAccModal";
+import { auth, db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { User as UserInterface } from "@/interfaces/interfaces";
 
 const User = () => {
   const router = useRouter();
+  const [userData, setUserData] = useState<UserInterface | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          setUserData({
+            id: userDocSnap.id,
+            ...userDocSnap.data(),
+          } as UserInterface);
+        } else {
+          console.log("Benutzerdokument nicht in Firestore gefunden.");
+        }
+      } else {
+        setUserData(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const imgScale = useSharedValue(1);
   const iconColor = useSharedValue("#fff");
@@ -42,10 +67,15 @@ const User = () => {
       <View style={styles.container}>
         <View style={styles.editProfilePictureContainer}>
           <Image
-            source={images.profilePicture}
+            source={
+              userData?.profilePicture
+                ? { uri: userData.profilePicture }
+                : images.profilePicture
+            }
             style={{
               width: 100,
               height: 100,
+              borderRadius: 50,
             }}
           />
           <Pressable
@@ -91,7 +121,9 @@ const User = () => {
             onPress={() => console.log("Username pressed")}
             style={styles.userData}
           >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>MaximW</Text>
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>
+              {userData?.userName || ""}
+            </Text>
           </TouchableHighlight>
         </View>
         <View style={styles.userDataContainer}>
@@ -114,7 +146,7 @@ const User = () => {
             style={styles.userData}
           >
             <Text style={{ color: "#fff", fontWeight: "bold" }}>
-              maximw@gmail.com
+              {userData?.email || ""}
             </Text>
           </TouchableHighlight>
         </View>

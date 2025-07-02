@@ -1,12 +1,13 @@
 import {
   View,
   Text,
+  StyleSheet,
   Dimensions,
+  PanResponder,
   Image,
   Pressable,
-  PanResponder,
+  ActivityIndicator,
 } from "react-native";
-import { StyleSheet } from "react-native";
 import React, {
   useCallback,
   useEffect,
@@ -26,6 +27,7 @@ import Animated, {
 } from "react-native-reanimated";
 import FriendsModal from "../../components/Modals/FriendsModal";
 import PrefModal from "../../components/Modals/PrefModal";
+import MatchModal from "../../components/Modals/MatchModal";
 import { db } from "@/firebase";
 import {
   collection,
@@ -40,29 +42,13 @@ import {
   limit,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { User } from "@/interfaces/interfaces";
+import { User, Card } from "@/interfaces/interfaces";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 const SWIPE_OUT_DURATION = 250;
 const RESET_DURATION = 300;
-
-export type Card = {
-  id: string; // Firestore liefert string IDs
-  name: string;
-  cuisine: string;
-  rating: number;
-  distance: string;
-  address: string;
-  priceRange: string;
-  images: any;
-  description: string;
-  starters: string[];
-  mains: string[];
-  drinks: string[];
-  desserts: string[];
-};
 
 const Index = () => {
   const auth = getAuth();
@@ -73,6 +59,10 @@ const Index = () => {
   const [allRestaurants, setAllRestaurants] = useState<Card[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [matchModalVisible, setMatchModalVisible] = useState(false);
+  const [matchedFriends, setMatchedFriends] = useState<User[]>([]);
 
   const applyFilter = (restaurantsToFilter: Card[], prefs: User) => {
     let filtered = restaurantsToFilter;
@@ -92,6 +82,12 @@ const Index = () => {
       }
     }
 
+    if (prefs.favorites && prefs.favorites.length > 0) {
+      filtered = filtered.filter(
+        (restaurant) => !prefs.favorites.includes(restaurant.id)
+      );
+    }
+
     setCards(filtered);
   };
 
@@ -101,6 +97,14 @@ const Index = () => {
 
   useEffect(() => {
     const loadContent = async () => {
+      setLoading(true);
+      const usersCollection = collection(db, "users");
+      const usersSnap = await getDocs(usersCollection);
+      const allFetchedUsers = usersSnap.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as User)
+      );
+      setAllUsers(allFetchedUsers);
+
       if (user) {
         // Fetch restaurants
         const restaurantsSnap = await getDocs(restaurantsCollection);
@@ -113,14 +117,23 @@ const Index = () => {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-          const userData = userDoc.data() as User;
+          const userData = { id: userDoc.id, ...userDoc.data() } as User;
           setCurrentUser(userData);
           applyFilter(allFetchedRestaurants, userData); // Apply initial filter
+
+          if (userData.friendIds && userData.friendIds.length > 0) {
+            const friendsData = allFetchedUsers.filter((u) =>
+              (userData.friendIds as string[]).includes(u.id)
+            );
+            setFriends(friendsData);
+            console.log("Fetched friends: ", friendsData);
+          }
         } else {
           console.log("No such user!");
           setCards(allFetchedRestaurants); // No user, show all restaurants
         }
       }
+      setLoading(false);
     };
 
     loadContent();
@@ -138,11 +151,41 @@ const Index = () => {
   }, []);
 
   const onSwipeComplete = useCallback(
-    (direction: "right" | "left" | "up" | "down") => {
+    async (direction: "right" | "left" | "up" | "down") => {
       const action =
         direction === "right" || direction === "up" ? "LIKED" : "DISLIKED";
 
-      if (cards[0]) console.log("action -->", action, cards[0].name);
+      const card = cards[0];
+      if (!card) {
+        return;
+      }
+
+      console.log("action -->", action, card.name);
+
+      if (action === "LIKED" && user && currentUser) {
+        const likedRestaurantId = card.id;
+        const userDocRef = doc(db, "users", user.uid);
+
+        const currentFavorites = currentUser.favorites || [];
+
+        if (!currentFavorites.includes(likedRestaurantId)) {
+          const updatedFavorites = [...currentFavorites, likedRestaurantId];
+          await updateDoc(userDocRef, {
+            favorites: updatedFavorites,
+          });
+          setCurrentUser({ ...currentUser, favorites: updatedFavorites });
+
+          // Check for a match with friends
+          const matchingFriends = friends.filter((friend) =>
+            friend.favorites?.includes(likedRestaurantId)
+          );
+
+          if (matchingFriends.length > 0) {
+            setMatchedFriends(matchingFriends);
+            setMatchModalVisible(true);
+          }
+        }
+      }
 
       if (cards.length > 0) {
         setCards((prev) => prev.slice(1));
@@ -159,7 +202,7 @@ const Index = () => {
         resetPosition();
       }
     },
-    [cards, resetPosition]
+    [cards, resetPosition, user, currentUser]
   );
 
   const forceSwipe = useCallback(
@@ -270,25 +313,44 @@ const Index = () => {
   /* --------------------------- Friends & Pref --------------------------- */
   const [friendsModalVisible, setFriendsModalVisible] = useState(false);
   const [prefModalVisible, setPrefModalVisible] = useState(false);
-  const [friends, setFriends] = useState<string[]>(["Anna"]);
+  const [friends, setFriends] = useState<User[]>([]);
   const [search, setSearch] = useState("");
-  const [allUsers] = useState<string[]>([
-    "Anna",
-    "Ben",
-    "Chris",
-    "Dora",
-    "Ella",
-    "Finn",
-    "Gina",
-    "Hugo",
-    "Ivy",
-    "Jack",
-    "Kara",
-  ]);
+
+  const handleAddFriend = async (newFriend: User) => {
+    if (!currentUser || !user) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+
+    const updatedFriends = [...friends, newFriend];
+    setFriends(updatedFriends);
+
+    const updatedFriendIds = updatedFriends.map((f) => f.id);
+    await updateDoc(userDocRef, {
+      friendIds: updatedFriendIds,
+    });
+
+    setSearch("");
+  };
+
+  const handleRemoveFriend = async (friendIdToRemove: string) => {
+    if (!currentUser || !user) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+
+    const updatedFriends = friends.filter((f) => f.id !== friendIdToRemove);
+    setFriends(updatedFriends);
+
+    const updatedFriendIds = updatedFriends.map((f) => f.id);
+    await updateDoc(userDocRef, {
+      friendIds: updatedFriendIds,
+    });
+  };
 
   const filteredUsers = allUsers.filter(
     (u) =>
-      u.toLowerCase().includes(search.toLowerCase()) && !friends.includes(u)
+      u.userName.toLowerCase().includes(search.toLowerCase()) &&
+      u.id !== user?.uid &&
+      !friends.some((friend) => friend.id === u.id)
   );
 
   const handleClosePrefs = (preferences?: {
@@ -370,11 +432,11 @@ const Index = () => {
       <PrefModal
         visible={prefModalVisible}
         onClose={handleClosePrefs}
-        friends={friends}
+        friends={[]}
         search={search}
         setSearch={setSearch}
-        filteredUsers={filteredUsers}
-        onAddFriend={(name) => setFriends([...friends, name])}
+        filteredUsers={[]}
+        onAddFriend={(name) => {}}
         userId={user?.uid} // Pass current user ID
       />
 
@@ -385,15 +447,27 @@ const Index = () => {
         search={search}
         setSearch={setSearch}
         filteredUsers={filteredUsers}
-        onAddFriend={(name) => setFriends([...friends, name])}
+        onAddFriend={handleAddFriend}
+        onRemoveFriend={handleRemoveFriend}
+      />
+
+      <MatchModal
+        visible={matchModalVisible}
+        onClose={() => setMatchModalVisible(false)}
+        matchedFriends={matchedFriends}
+        currentUser={currentUser}
       />
 
       {/* Card Deck */}
       <View style={styles.cardDeck}>
-        {cards.length === 0 ? (
+        {loading ? (
+          <View style={styles.emptyContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+          </View>
+        ) : cards.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {error ?? "No cards available"}
+              {error ?? "Keine Restaurants gefunden."}
             </Text>
           </View>
         ) : (

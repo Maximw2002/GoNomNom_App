@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import images from "@/constants/images";
 
 type Props = {
   visible: boolean;
@@ -42,13 +43,11 @@ const ImageModal: React.FC<Props> = ({ visible, image, onClose }) => {
             bouncesZoom={true}
             centerContent={true}
           >
-            {image && (
-              <Image
-                source={image}
-                style={styles.modalImage}
-                resizeMode="contain"
-              />
-            )}
+            <Image
+              source={image ? { uri: image } : images.restaurantImage2}
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
           </ScrollView>
         </View>
       </View>

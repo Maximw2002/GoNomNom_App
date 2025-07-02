@@ -7,7 +7,7 @@ import {
   Image,
 } from "react-native";
 import React, { FC, memo, useEffect } from "react";
-import { Card } from "@/app/(tabs)";
+import { Card } from "../../app/(tabs)";
 import {
   Easing,
   Extrapolation,
@@ -22,6 +22,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { router, useRouter } from "expo-router";
+import images from "@/constants/images";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const ROTATION_RANGE = 15;
@@ -118,7 +119,12 @@ const CardView: FC<CardViewProps> = ({
   return (
     <Animated.View style={[styles.card, animationStyle]} {...panHandlers}>
       <View style={styles.cardImage}>
-        <Image source={{ uri: card.images[0] }} style={styles.image} />
+        <Image
+          source={
+            card.images?.[0] ? { uri: card.images[0] } : images.restaurantImage2
+          }
+          style={styles.image}
+        />
       </View>
 
       <Pressable

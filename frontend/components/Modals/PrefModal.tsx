@@ -1,6 +1,6 @@
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -22,6 +22,8 @@ import KitchenTypeButton from "@/components/kitchenTypeButton";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { SelectCountry } from "react-native-element-dropdown";
 import Slider from "@react-native-community/slider";
+import { db } from "@/firebase";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 
 const priceCategorie = [
   {
@@ -55,13 +57,17 @@ const locations = [
 
 type PrefModalProps = {
   visible: boolean;
-  onClose: () => void;
+  onClose: (preferences?: {
+    selectedTypes: string[];
+    priceCat: string;
+  }) => void;
   friends: string[];
   search: string;
   setSearch: (text: string) => void;
   filteredUsers: string[];
   onAddFriend: (name: string) => void;
   _props?: any;
+  userId: string | undefined;
 };
 
 const PrefModal: FC<PrefModalProps> = ({
@@ -73,14 +79,35 @@ const PrefModal: FC<PrefModalProps> = ({
   filteredUsers,
   onAddFriend,
   _props = {},
+  userId,
 }) => {
-  const [priceCat, setPriceCat] = useState("€");
+  const [priceCat, setPriceCat] = useState("3"); // Default to '3' for '€€€'
   const [location, setLocation] = useState("Karlsruhe");
-  const [radius, setRadius] = useState(10);
+  const [radius, setRadius] = useState(20);
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [selectedPrice, setSelectedPrice] = useState("Mittel");
+
+  useEffect(() => {
+    const fetchUserPrefs = async () => {
+      if (visible && userId) {
+        try {
+          const userDocRef = doc(db, "users", userId);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // Set initial state from Firestore, provide defaults if not present
+            setSelectedTypes(userData.cuisinePref || []);
+            setPriceCat(userData.pricePref || "3");
+          }
+        } catch (error) {
+          console.error("Error fetching user preferences:", error);
+        }
+      }
+    };
+
+    fetchUserPrefs();
+  }, [visible, userId]);
+
   const toggleType = (type: string) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
@@ -88,12 +115,27 @@ const PrefModal: FC<PrefModalProps> = ({
     console.log("Selected Kitchen Types:", selectedTypes);
   };
 
+  const handleCloseAndSave = async () => {
+    if (userId) {
+      try {
+        const userDocRef = doc(db, "users", userId);
+        await updateDoc(userDocRef, {
+          cuisinePref: selectedTypes,
+          pricePref: priceCat,
+        });
+      } catch (error) {
+        console.error("Error updating user preferences:", error);
+      }
+    }
+    onClose({ selectedTypes, priceCat });
+  };
+
   return (
     <Modal
       visible={visible}
       animationType="fade"
       transparent={true}
-      onRequestClose={onClose}
+      onRequestClose={() => onClose()} // Call without saving
     >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
@@ -196,7 +238,7 @@ const PrefModal: FC<PrefModalProps> = ({
             </View>
           </View>
 
-          <Pressable onPress={onClose} style={styles.closeButton}>
+          <Pressable onPress={handleCloseAndSave} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Schließen</Text>
           </Pressable>
         </View>

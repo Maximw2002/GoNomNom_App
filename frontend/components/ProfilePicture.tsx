@@ -11,7 +11,7 @@ import { icons } from "@/constants/icons";
 type Props = {
   picture: any;
   index: number;
-  onPress: (name: string) => void;
+  onPress: (index: number) => void;
   viewStyle?: any;
   pictureStyle?: any;
 };
@@ -36,7 +36,7 @@ const ProfilePicture: FC<Props> = ({
       onPressOut={() => {
         btnScale.value = withTiming(1, { duration: 120 });
       }}
-      onPress={() => onPress(index.toString())}
+      onPress={() => onPress(index)}
     >
       <Animated.View style={[viewStyle, btnAnimatedStyle]}>
         <Image source={picture} style={pictureStyle} resizeMode="cover" />

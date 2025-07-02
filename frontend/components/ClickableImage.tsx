@@ -1,12 +1,11 @@
-import React, { FC } from "react";
-import { Pressable, Text, Image } from "react-native";
+import React, { FC, useState } from "react";
+import { Pressable, Text, Image, ImageSourcePropType } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import { images } from "@/constants/images";
-import { icons } from "@/constants/icons";
 
 type Props = {
   picture: any;
@@ -21,6 +20,14 @@ const ClickableImage: FC<Props> = ({
   viewStyle,
   pictureStyle,
 }) => {
+  const [imageSource, setImageSource] = useState<ImageSourcePropType>(
+    picture ? { uri: picture } : images.restaurantImage2
+  );
+
+  const handleError = () => {
+    setImageSource(images.restaurantImage3);
+  };
+
   const btnScale = useSharedValue(1);
   const btnAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: btnScale.value }],
@@ -37,7 +44,12 @@ const ClickableImage: FC<Props> = ({
       onPress={() => onPress()}
     >
       <Animated.View style={[viewStyle, btnAnimatedStyle]}>
-        <Image source={picture} style={pictureStyle} resizeMode="cover" />
+        <Image
+          source={imageSource}
+          style={pictureStyle}
+          resizeMode="cover"
+          onError={handleError}
+        />
       </Animated.View>
     </Pressable>
   );

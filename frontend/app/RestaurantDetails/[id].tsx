@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import {
   ScrollView,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import data from "@/assets/data/data";
 import { Stack } from "expo-router";
 import { MaterialIcons, FontAwesome, Feather } from "@expo/vector-icons"; // Icons für modernes Design
 import Animated, {
@@ -23,21 +22,21 @@ import Animated, {
 import ClickableImage from "@/components/ClickableImage";
 import ImageModal from "@/components/Modals/ImageModal";
 import MenuModal from "@/components/Modals/MenuModal";
+import { db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { Card } from "@/app/(tabs)";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const RestaurantDetails = () => {
   const { id } = useLocalSearchParams();
-  const restaurant = data.find((r) => r.id.toString() === id);
-
+  const [restaurant, setRestaurant] = useState<Card | null>(null);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  if (!restaurant) {
-    return <Text>Restaurant nicht gefunden.</Text>;
-  }
-
+  // Hooks für Animationen an den Anfang verschoben
   const btnScale = useSharedValue(1);
   const btnColor = useSharedValue("#007AFF");
   const txtColor = useSharedValue("#fff");
@@ -49,9 +48,36 @@ const RestaurantDetails = () => {
     color: txtColor.value,
   }));
 
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      if (typeof id !== "string") {
+        setLoading(false);
+        return;
+      }
+      try {
+        const restaurantDoc = doc(db, "restaurants", id);
+        const docSnap = await getDoc(restaurantDoc);
+
+        if (docSnap.exists()) {
+          setRestaurant({ id: docSnap.id, ...docSnap.data() } as Card);
+        } else {
+          console.log("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurant();
+  }, [id]);
+
   // FlatList-Renderfunktion für das gewünschte Layout
   const renderImages = () => {
-    const images = restaurant.image;
+    const images = restaurant?.images;
+    if (!images) return null; // Sicherstellen, dass images existiert
+
     const layout = [];
     let i = 0;
     while (i < images.length) {
@@ -128,83 +154,107 @@ const RestaurantDetails = () => {
         options={{
           title: "",
           headerBackTitle: "Zurück",
-          headerTransparent: true,
+          headerTransparent: false,
           headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "#171717",
+          },
+          headerTintColor: "#fff",
         }}
       />
-      <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>{restaurant.name}</Text>
-          <View style={styles.row}>
-            <MaterialIcons name="place" size={18} color="#ffb300" />
-            <Text style={styles.address}>{restaurant.address}</Text>
+      {loading ? (
+        <View style={styles.container}>
+          <Text style={{ color: "white" }}>Loading...</Text>
+        </View>
+      ) : !restaurant ? (
+        <View style={styles.container}>
+          <Text>Restaurant nicht gefunden.</Text>
+        </View>
+      ) : (
+        <View style={{ flex: 1, backgroundColor: "#171717" }}>
+          <View style={styles.container}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>{restaurant.name}</Text>
+              <View style={styles.row}>
+                <MaterialIcons name="place" size={18} color="#ffb300" />
+                <Text style={styles.address}>{restaurant.address}</Text>
+              </View>
+            </View>
+            <View style={styles.infoRow}>
+              <View style={styles.infoBox}>
+                <MaterialIcons
+                  name="restaurant-menu"
+                  size={18}
+                  color="#4fc3f7"
+                />
+                <Text style={styles.infoText}>{restaurant.cuisine}</Text>
+              </View>
+              <View style={styles.infoBox}>
+                <FontAwesome name="star" size={18} color="#FFD700" />
+                <Text style={styles.infoText}>{restaurant.rating} / 5</Text>
+              </View>
+              <View style={styles.infoBox}>
+                <MaterialIcons name="euro" size={18} color="#81c784" />
+                <Text style={styles.infoText}>{restaurant.priceRange}</Text>
+              </View>
+              <View style={styles.infoBox}>
+                <MaterialIcons
+                  name="directions-walk"
+                  size={18}
+                  color="#f06292"
+                />
+                <Text style={styles.infoText}>{restaurant.distance}</Text>
+              </View>
+            </View>
+
+            <View style={styles.imagesContainer}>{renderImages()}</View>
+
+            {/* Beschreibungstitel mit Icon */}
+            <View style={styles.descHeaderContainer}>
+              <Text style={styles.descHeader}>Beschreibung</Text>
+            </View>
+
+            <Text style={styles.description}>{restaurant.description}</Text>
+
+            <Pressable
+              onPressIn={() => {
+                btnScale.value = withTiming(0.9, { duration: 200 });
+                btnColor.value = withTiming("#fff", {
+                  duration: 200,
+                });
+                txtColor.value = withTiming("#000", { duration: 200 });
+              }}
+              onPressOut={() => {
+                btnScale.value = withTiming(1, { duration: 200 });
+                btnColor.value = withTiming("#007AFF", { duration: 200 });
+                txtColor.value = withTiming("#fff", { duration: 200 });
+              }}
+              onPress={() => setMenuVisible(true)}
+            >
+              <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
+                <Animated.Text style={[styles.regTextStyle, txtAnimatedStyle]}>
+                  Speisekarte anzeigen
+                </Animated.Text>
+              </Animated.View>
+            </Pressable>
+
+            {/* Modal für Bildanzeige */}
+            <ImageModal
+              visible={modalVisible}
+              image={selectedImage}
+              onClose={() => setModalVisible(false)}
+            />
+            <MenuModal
+              visible={menuVisible}
+              onClose={() => setMenuVisible(false)}
+              starters={restaurant.starters}
+              mains={restaurant.mains}
+              drinks={restaurant.drinks}
+              desserts={restaurant.desserts}
+            />
           </View>
         </View>
-        <View style={styles.infoRow}>
-          <View style={styles.infoBox}>
-            <MaterialIcons name="restaurant-menu" size={18} color="#4fc3f7" />
-            <Text style={styles.infoText}>{restaurant.cuisine}</Text>
-          </View>
-          <View style={styles.infoBox}>
-            <FontAwesome name="star" size={18} color="#FFD700" />
-            <Text style={styles.infoText}>{restaurant.rating} / 5</Text>
-          </View>
-          <View style={styles.infoBox}>
-            <MaterialIcons name="euro" size={18} color="#81c784" />
-            <Text style={styles.infoText}>{restaurant.priceRange}</Text>
-          </View>
-          <View style={styles.infoBox}>
-            <MaterialIcons name="directions-walk" size={18} color="#f06292" />
-            <Text style={styles.infoText}>{restaurant.distance}</Text>
-          </View>
-        </View>
-
-        <View style={styles.imagesContainer}>{renderImages()}</View>
-
-        {/* Beschreibungstitel mit Icon */}
-        <View style={styles.descHeaderContainer}>
-          <Text style={styles.descHeader}>Beschreibung</Text>
-        </View>
-
-        <Text style={styles.description}>{restaurant.description}</Text>
-
-        <Pressable
-          onPressIn={() => {
-            btnScale.value = withTiming(0.9, { duration: 200 });
-            btnColor.value = withTiming("#fff", {
-              duration: 200,
-            });
-            txtColor.value = withTiming("#000", { duration: 200 });
-          }}
-          onPressOut={() => {
-            btnScale.value = withTiming(1, { duration: 200 });
-            btnColor.value = withTiming("#007AFF", { duration: 200 });
-            txtColor.value = withTiming("#fff", { duration: 200 });
-          }}
-          onPress={() => setMenuVisible(true)}
-        >
-          <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
-            <Animated.Text style={[styles.regTextStyle, txtAnimatedStyle]}>
-              Speisekarte anzeigen
-            </Animated.Text>
-          </Animated.View>
-        </Pressable>
-
-        {/* Modal für Bildanzeige */}
-        <ImageModal
-          visible={modalVisible}
-          image={selectedImage}
-          onClose={() => setModalVisible(false)}
-        />
-        <MenuModal
-          visible={menuVisible}
-          onClose={() => setMenuVisible(false)}
-          starters={restaurant.starters}
-          mains={restaurant.mains}
-          drinks={restaurant.drinks}
-          desserts={restaurant.desserts}
-        />
-      </View>
+      )}
     </>
   );
 };
@@ -245,7 +295,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    marginTop: 100,
+    marginTop: 20, // Reduziert von 100, da der Header nicht mehr transparent ist
     fontSize: 32,
     fontWeight: "bold",
     color: "#fff",
@@ -318,7 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 20,
     height: 50,
-    marginTop: 20,
+    marginTop: 5,
     shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 2 },

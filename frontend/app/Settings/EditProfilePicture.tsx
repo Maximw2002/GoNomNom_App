@@ -1,12 +1,33 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import React from "react";
-import { Stack } from "expo-router";
-import { StyleSheet, Image } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { Stack, useRouter } from "expo-router";
 import { profilePictures } from "@/assets/data/data";
 import ProfilePicture from "@/components/ProfilePicture";
+import { auth, db } from "../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 
 const EditProfilePicture = () => {
+  const router = useRouter();
+
+  const handlePictureSelect = async (index: number) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const pictureName = index === 0 ? "generic" : index.toString();
+      const picturePath = `http://localhost:3000/images/ProfilePictures/${pictureName}.png`;
+
+      try {
+        await updateDoc(userDocRef, {
+          profilePicture: picturePath,
+        });
+        console.log("Profilbild erfolgreich aktualisiert!");
+        router.back();
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren des Profilbilds:", error);
+      }
+    }
+  };
+
   return (
     <>
       <Stack.Screen
@@ -37,11 +58,11 @@ const EditProfilePicture = () => {
           numColumns={2}
           keyExtractor={(item, index) => index.toString()}
           scrollEnabled={false}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <ProfilePicture
               picture={item}
-              index={profilePictures.indexOf(item)}
-              onPress={(name) => console.log(`Profilbild ${name} ausgewählt`)}
+              index={index}
+              onPress={handlePictureSelect}
               viewStyle={styles.pictureContainer}
               pictureStyle={{
                 width: "100%",

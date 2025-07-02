@@ -63,26 +63,6 @@ const PrefModal: FC<DeleteAccModalProps> = ({
           <View style={styles.btnContainer}>
             <TouchableHighlight
               activeOpacity={0.8}
-              underlayColor="#686868" // etwas dunkler als #FF0101 für schönes Feedback
-              onPress={() => {
-                console.log("Account deleted");
-              }}
-              style={styles.noBtnContainer}
-            >
-              <View>
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  Nein
-                </Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight
-              activeOpacity={0.8}
               underlayColor="#c62828" // etwas dunkler als #FF0101 für schönes Feedback
               onPress={() => {
                 console.log("Account deleted");

@@ -1,4 +1,4 @@
-interface Restaurant {
+export interface Restaurant {
   id: number;
   name: string;
   adult: boolean;
@@ -8,10 +8,9 @@ interface Restaurant {
   rating: number;
   menu: string;
   backdrop_path: string;
-
 }
 
-interface TrendingMovie {
+export interface TrendingMovie {
   searchTerm: string;
   movie_id: number;
   title: string;
@@ -19,7 +18,7 @@ interface TrendingMovie {
   poster_url: string;
 }
 
-interface MovieDetails {
+export interface MovieDetails {
   adult: boolean;
   backdrop_path: string | null;
   belongs_to_collection: {
@@ -67,7 +66,35 @@ interface MovieDetails {
   vote_count: number;
 }
 
-interface TrendingCardProps {
+export interface Card {
+  id: string; // Firestore liefert string IDs
+  name: string;
+  cuisine: string;
+  rating: number;
+  distance: string;
+  address: string;
+  priceRange: string;
+  images: any;
+  description: string;
+  starters: string[];
+  mains: string[];
+  drinks: string[];
+  desserts: string[];
+}
+
+export interface TrendingCardProps {
   movie: TrendingMovie;
   index: number;
+}
+
+export interface User {
+  id: string;
+  userName: string;
+  email: string;
+  profilePicture?: string;
+  favorites: string[];
+  friendIds: string[];
+  password?: string;
+  cuisinePref: string[];
+  pricePref: string;
 }

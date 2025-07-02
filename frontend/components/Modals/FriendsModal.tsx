@@ -17,15 +17,17 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import AddFriendButton from "@/components/AddFriendButton";
+import { User } from "@/interfaces/interfaces";
 
 type FriendsModalProps = {
   visible: boolean;
   onClose: () => void;
-  friends: string[];
+  friends: User[];
   search: string;
   setSearch: (text: string) => void;
-  filteredUsers: string[];
-  onAddFriend: (name: string) => void;
+  filteredUsers: User[];
+  onAddFriend: (user: User) => void;
+  onRemoveFriend: (friendId: string) => void;
 };
 
 const FriendsModal: FC<FriendsModalProps> = ({
@@ -36,6 +38,7 @@ const FriendsModal: FC<FriendsModalProps> = ({
   setSearch,
   filteredUsers,
   onAddFriend,
+  onRemoveFriend,
 }) => {
   return (
     <Modal
@@ -63,11 +66,11 @@ const FriendsModal: FC<FriendsModalProps> = ({
             <FlatList
               keyboardShouldPersistTaps="handled"
               data={filteredUsers}
-              keyExtractor={(item) => item}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <AddFriendButton
-                  name={item}
-                  onAdd={onAddFriend}
+                  name={item.userName}
+                  onAdd={() => onAddFriend(item)}
                   buttonStyle={styles.buttonAddUser}
                   textStyle={styles.addUserText}
                   imageStyle={styles.addFriendImage}
@@ -85,15 +88,30 @@ const FriendsModal: FC<FriendsModalProps> = ({
             <FlatList
               data={friends.slice().reverse()} // Reverse the order to show the latest friends first
               horizontal={true}
-              keyExtractor={(item) => item}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.friendItem}>
-                  <Image
-                    source={images.profilePicture}
-                    style={styles.friendImage}
-                    resizeMode="cover"
-                  />
-                  <Text style={styles.friendName}>{item}</Text>
+                  <View>
+                    <Image
+                      source={
+                        item.profilePicture
+                          ? { uri: item.profilePicture }
+                          : images.profilePicture
+                      }
+                      style={styles.friendImage}
+                      resizeMode="cover"
+                    />
+                    <Pressable
+                      onPress={() => onRemoveFriend(item.id)}
+                      style={styles.removeFriendButton}
+                    >
+                      <Image
+                        source={icons.closeModal}
+                        style={styles.removeFriendIcon}
+                      />
+                    </Pressable>
+                  </View>
+                  <Text style={styles.friendName}>{item.userName}</Text>
                 </View>
               )}
               ListEmptyComponent={
@@ -134,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     marginRight: 16,
-    height: 60,
+    paddingTop: 10, // Add padding to the right for spacing
   },
   friendImage: {
     height: 50,
@@ -145,10 +163,25 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 16,
     color: "#fff",
+    marginTop: 8, // Add margin to separate name from the image/icon
+  },
+  removeFriendButton: {
+    position: "absolute",
+    top: -5, // Adjust to move icon slightly up
+    right: -5, // Adjust to move icon slightly to the right
+    backgroundColor: "rgba(45, 45, 45, 0.9)",
+    borderRadius: 12,
+    padding: 2,
+    zIndex: 1, // Ensure button is on top
+  },
+  removeFriendIcon: {
+    width: 16,
+    height: 16,
   },
   emptyText: {
     color: "#fff",
-    marginVertical: 8,
+    marginBottom: 8,
+    marginTop: 45,
   },
   searchInput: {
     borderWidth: 1,
@@ -198,7 +231,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   friendsContainer: {
-    height: 150,
+    height: 180,
     width: "100%",
     alignItems: "flex-start",
     justifyContent: "flex-end",

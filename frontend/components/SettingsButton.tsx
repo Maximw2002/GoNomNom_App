@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useCallback } from "react";
 import { Pressable, Text, Image, View } from "react-native";
 import Animated, {
   useSharedValue,
@@ -41,6 +41,10 @@ const SettingsButton: FC<Props> = ({
     tintColor: txtColor.value,
   }));
 
+  const handlePress = useCallback(() => {
+    onPress();
+  }, [onPress]);
+
   return (
     <Pressable
       onPressIn={() => {
@@ -55,7 +59,7 @@ const SettingsButton: FC<Props> = ({
         btnColor.value = withTiming(buttonColor || "#fff", { duration: 200 });
         txtColor.value = withTiming(textColor || "#000", { duration: 200 });
       }}
-      onPress={() => onPress()}
+      onPress={handlePress}
     >
       <Animated.View style={[buttonStyle, btnAnimatedStyle]}>
         <View

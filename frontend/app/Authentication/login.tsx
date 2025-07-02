@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable } from "react-native";
+import { StyleSheet, Text, View, Image, Pressable, Alert } from "react-native";
 import React, { useState } from "react";
 import images from "@/constants/images";
 import { BlurView } from "expo-blur";
@@ -13,9 +13,11 @@ import SettingsButton from "@/components/SettingsButton";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
 import AuthInput from "@/components/AuthInput";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+import { auth } from "@/firebase";
 
 const login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
@@ -30,12 +32,37 @@ const login = () => {
     color: txtColor.value,
   }));
 
+  const signIn = async () => {
+    try {
+      if (!email || !password) {
+        Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+        return;
+      }
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/(tabs)");
+    } catch (error: any) {
+      if (
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/user-not-found"
+      ) {
+        Alert.alert(
+          "Anmeldung fehlgeschlagen",
+          "Die E-Mail oder das Passwort ist falsch."
+        );
+      } else {
+        Alert.alert("Fehler", error.message);
+      }
+      console.log("Error signing in:", error.message);
+    }
+  };
+
   return (
     <>
       <Stack.Screen
         options={{
           title: "",
-          headerBackTitle: "Zurück",
+          headerBackVisible: false,
           headerTransparent: true, // Header-Hintergrund transparent
           headerShadowVisible: false,
         }}
@@ -46,10 +73,10 @@ const login = () => {
         </View>
         <View style={styles.btnContainer}>
           <AuthInput
-            placeholder="Username"
+            placeholder="E-Mail"
             icon={icons.user}
-            value={username}
-            onChangeText={setUsername}
+            value={email}
+            onChangeText={setEmail}
           />
           <AuthInput
             placeholder="Password"
@@ -71,7 +98,7 @@ const login = () => {
               btnColor.value = withTiming("#007AFF", { duration: 200 });
               txtColor.value = withTiming("#fff", { duration: 200 });
             }}
-            onPress={() => console.log("Register pressed")}
+            onPress={signIn}
           >
             <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
               <Animated.Text style={[styles.regTextStyle, txtAnimatedStyle]}>

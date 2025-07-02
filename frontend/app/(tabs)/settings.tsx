@@ -1,13 +1,22 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "@/components/Header";
-import SettingsButton from "@/components/SettingsButton";
+import React, { useEffect } from "react";
+import Header from "../../components/Header";
+import SettingsButton from "../../components/SettingsButton";
 import { useRouter } from "expo-router";
-import { icons } from "@/constants/icons";
+import { icons } from "../../constants/icons";
+import { getAuth } from "firebase/auth";
 
 const settings = () => {
   const router = useRouter();
+  useEffect(() => {
+    const unsubscribe = getAuth().onAuthStateChanged((user) => {
+      if (!user) {
+        router.replace("/Authentication/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
   return (
     <View style={styles.Container}>
       <Header title="Profil" back={false} />
@@ -42,7 +51,7 @@ const settings = () => {
         />
         <SettingsButton
           name="Abmelden"
-          onPress={() => router.push("/Authentication/overview")}
+          onPress={() => getAuth().signOut()}
           buttonStyle={styles.logoutButton}
           textStyle={styles.settingsButtonText}
           icon={icons.logout}
