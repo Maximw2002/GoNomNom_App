@@ -7,7 +7,7 @@ import {
   Image,
 } from "react-native";
 import React, { FC, memo, useEffect } from "react";
-import { Card } from "@/assets/data/data";
+import { Card } from "@/app/(tabs)";
 import {
   Easing,
   Extrapolation,
@@ -118,7 +118,7 @@ const CardView: FC<CardViewProps> = ({
   return (
     <Animated.View style={[styles.card, animationStyle]} {...panHandlers}>
       <View style={styles.cardImage}>
-        <Image source={card.image[0]} style={styles.image} />
+        <Image source={{ uri: card.images[0] }} style={styles.image} />
       </View>
 
       <Pressable

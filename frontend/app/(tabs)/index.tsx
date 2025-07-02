@@ -2,33 +2,45 @@ import {
   View,
   Text,
   Dimensions,
-  Touchable,
-  TouchableOpacity,
   Image,
   Pressable,
   PanResponder,
-  Modal,
-  TextInput,
-  FlatList,
 } from "react-native";
 import { StyleSheet } from "react-native";
-import React, { use, useCallback, useRef, useState } from "react";
-import data, { Card } from "@/assets/data/data";
-import { images } from "@/constants/images";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
 import { icons } from "@/constants/icons";
 import CardView from "@/components/RestaurantCard/CardView";
 import Header from "@/components/Header";
 import Animated, {
   useSharedValue,
   withTiming,
-  withDelay,
   useAnimatedStyle,
   runOnJS,
   Easing,
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 import FriendsModal from "../../components/Modals/FriendsModal";
 import PrefModal from "../../components/Modals/PrefModal";
+import { db } from "@/firebase";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  limit,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { User } from "@/interfaces/interfaces";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -36,29 +48,88 @@ const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 const SWIPE_OUT_DURATION = 250;
 const RESET_DURATION = 300;
 
+export type Card = {
+  id: string; // Firestore liefert string IDs
+  name: string;
+  cuisine: string;
+  rating: number;
+  distance: string;
+  address: string;
+  priceRange: string;
+  images: any;
+  description: string;
+  starters: string[];
+  mains: string[];
+  drinks: string[];
+  desserts: string[];
+};
+
 const Index = () => {
-  const [cards, setCards] = useState<Card[]>(data);
-  const translateX = useSharedValue(0); // Placeholder for SharedValue
-  const translateY = useSharedValue(0); // Placeholder for SharedValue
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const restaurantsCollection = collection(db, "restaurants");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  const [allRestaurants, setAllRestaurants] = useState<Card[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const applyFilter = (restaurantsToFilter: Card[], prefs: User) => {
+    let filtered = restaurantsToFilter;
+
+    if (prefs.cuisinePref && prefs.cuisinePref.length > 0) {
+      filtered = filtered.filter((restaurant) =>
+        prefs.cuisinePref.includes(restaurant.cuisine)
+      );
+    }
+
+    if (prefs.pricePref) {
+      const maxPriceLength = parseInt(prefs.pricePref, 10);
+      if (!isNaN(maxPriceLength)) {
+        filtered = filtered.filter(
+          (restaurant) => restaurant.priceRange.length <= maxPriceLength
+        );
+      }
+    }
+
+    setCards(filtered);
+  };
+
+  /* ------------------------------------------------------------------
+   * Lade Restaurants – abgesichert gegen undefined doc.data()
+   * -----------------------------------------------------------------*/
+
+  useEffect(() => {
+    const loadContent = async () => {
+      if (user) {
+        // Fetch restaurants
+        const restaurantsSnap = await getDocs(restaurantsCollection);
+        const allFetchedRestaurants = restaurantsSnap.docs.map(
+          (d) => ({ id: d.id, ...d.data() } as Card)
+        );
+        setAllRestaurants(allFetchedRestaurants);
+
+        // Fetch user data and apply preferences
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setCurrentUser(userData);
+          applyFilter(allFetchedRestaurants, userData); // Apply initial filter
+        } else {
+          console.log("No such user!");
+          setCards(allFetchedRestaurants); // No user, show all restaurants
+        }
+      }
+    };
+
+    loadContent();
+  }, [user]);
+
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
   const nextCardScale = useSharedValue(0.9);
-  const dummyTranslate = useSharedValue(0); // Placeholder for SharedValue
-  const [friendsModalVisible, setFriendsModalVisible] = useState(false);
-  const [prefModalVisible, setPrefModalVisible] = useState(false);
-  const [friends, setFriends] = useState<string[]>(["Anna"]);
-  const [search, setSearch] = useState("");
-  const [allUsers] = useState<string[]>([
-    "Anna",
-    "Ben",
-    "Chris",
-    "Dora",
-    "Ella",
-    "Finn",
-    "Gina",
-    "Hugo",
-    "Ivy",
-    "Jack",
-    "Kara",
-  ]);
+  const dummyTranslate = useSharedValue(0);
 
   const resetPosition = useCallback(() => {
     translateX.value = withTiming(0, { duration: RESET_DURATION });
@@ -71,10 +142,10 @@ const Index = () => {
       const action =
         direction === "right" || direction === "up" ? "LIKED" : "DISLIKED";
 
-      console.log("action -->", action, cards[0].name);
+      if (cards[0]) console.log("action -->", action, cards[0].name);
 
       if (cards.length > 0) {
-        setCards((prevCards) => prevCards.slice(1));
+        setCards((prev) => prev.slice(1));
         requestAnimationFrame(() => {
           translateX.value = 0;
           translateY.value = 0;
@@ -93,22 +164,43 @@ const Index = () => {
 
   const forceSwipe = useCallback(
     (direction: "right" | "left" | "up" | "down") => {
+      /* -----------------------------------------------------------
+       * Zielkoordinaten für jede Richtung
+       * ---------------------------------------------------------- */
       const swipeConfig = {
         right: { x: SCREEN_WIDTH * 1.5, y: 0 },
         left: { x: -SCREEN_WIDTH * 1.5, y: 0 },
         up: { x: 0, y: -SCREEN_HEIGHT * 1.5 },
         down: { x: 0, y: SCREEN_HEIGHT * 1.5 },
-      };
+      } as const;
 
-      translateX.value = withTiming(swipeConfig[direction].x, {
-        duration: SWIPE_OUT_DURATION,
-      });
+      const { x, y } = swipeConfig[direction];
+      const isHorizontal = direction === "left" || direction === "right";
+
+      /* -----------------------------------------------------------
+       * X-Achse – Callback nur bei Links / Rechts
+       * ---------------------------------------------------------- */
+      translateX.value = withTiming(
+        x,
+        { duration: SWIPE_OUT_DURATION },
+        (finished) => {
+          if (finished && isHorizontal) {
+            runOnJS(onSwipeComplete)(direction);
+          }
+        }
+      );
+
+      /* -----------------------------------------------------------
+       * Y-Achse – Callback nur bei Hoch / Runter
+       * ---------------------------------------------------------- */
       translateY.value = withTiming(
-        swipeConfig[direction].y,
-        {
-          duration: SWIPE_OUT_DURATION,
-        },
-        () => runOnJS(onSwipeComplete)(direction)
+        y,
+        { duration: SWIPE_OUT_DURATION },
+        (finished) => {
+          if (finished && !isHorizontal) {
+            runOnJS(onSwipeComplete)(direction);
+          }
+        }
       );
     },
     [onSwipeComplete]
@@ -117,43 +209,45 @@ const Index = () => {
   const handleLike = useCallback(() => forceSwipe("right"), [forceSwipe]);
   const handleDislike = useCallback(() => forceSwipe("left"), [forceSwipe]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gesture) => {
-        translateX.value = gesture.dx;
-        translateY.value = gesture.dy;
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderMove: (_, gesture) => {
+          translateX.value = gesture.dx;
+          translateY.value = gesture.dy;
 
-        const dragDistance = Math.sqrt(gesture.dx ** 2 + gesture.dy ** 2);
-        const progress = Math.min(dragDistance / SWIPE_THRESHOLD, 1);
-        nextCardScale.value = 0.9 + 0.1 * progress;
-      },
+          const dragDistance = Math.sqrt(gesture.dx ** 2 + gesture.dy ** 2);
+          const progress = Math.min(dragDistance / SWIPE_THRESHOLD, 1);
+          nextCardScale.value = 0.9 + 0.1 * progress;
+        },
 
-      onPanResponderRelease: (_, gesture) => {
-        const absDx = Math.abs(gesture.dx);
-        const absDy = Math.abs(gesture.dy);
+        onPanResponderRelease: (_, gesture) => {
+          const absDx = Math.abs(gesture.dx);
+          const absDy = Math.abs(gesture.dy);
 
-        if (absDy > absDx) {
-          if (gesture.dy < -SWIPE_THRESHOLD) {
-            forceSwipe("up");
-          } else if (gesture.dy > SWIPE_THRESHOLD) {
-            forceSwipe("down");
+          if (absDy > absDx) {
+            if (gesture.dy < -SWIPE_THRESHOLD) {
+              forceSwipe("up");
+            } else if (gesture.dy > SWIPE_THRESHOLD) {
+              forceSwipe("down");
+            } else {
+              resetPosition();
+            }
           } else {
-            resetPosition();
+            if (gesture.dx > SWIPE_THRESHOLD) {
+              forceSwipe("right");
+            } else if (gesture.dx < -SWIPE_THRESHOLD) {
+              forceSwipe("left");
+            } else {
+              resetPosition();
+            }
           }
-        } else {
-          if (gesture.dx > SWIPE_THRESHOLD) {
-            forceSwipe("right");
-          } else if (gesture.dx < -SWIPE_THRESHOLD) {
-            forceSwipe("left");
-          } else {
-            resetPosition();
-          }
-        }
-      },
-    })
-  ).current;
+        },
+      }),
+    [forceSwipe, resetPosition]
+  );
 
   const btnScaleLike = useSharedValue(1);
   const btnScaleDislike = useSharedValue(1);
@@ -173,6 +267,51 @@ const Index = () => {
     transform: [{ scale: btnScaleGroup.value }],
   }));
 
+  /* --------------------------- Friends & Pref --------------------------- */
+  const [friendsModalVisible, setFriendsModalVisible] = useState(false);
+  const [prefModalVisible, setPrefModalVisible] = useState(false);
+  const [friends, setFriends] = useState<string[]>(["Anna"]);
+  const [search, setSearch] = useState("");
+  const [allUsers] = useState<string[]>([
+    "Anna",
+    "Ben",
+    "Chris",
+    "Dora",
+    "Ella",
+    "Finn",
+    "Gina",
+    "Hugo",
+    "Ivy",
+    "Jack",
+    "Kara",
+  ]);
+
+  const filteredUsers = allUsers.filter(
+    (u) =>
+      u.toLowerCase().includes(search.toLowerCase()) && !friends.includes(u)
+  );
+
+  const handleClosePrefs = (preferences?: {
+    selectedTypes: string[];
+    priceCat: string;
+  }) => {
+    setPrefModalVisible(false);
+    if (preferences && currentUser) {
+      const { selectedTypes, priceCat } = preferences;
+
+      // Update currentUser state locally to reflect changes immediately
+      const updatedUser = {
+        ...currentUser,
+        cuisinePref: selectedTypes,
+        pricePref: priceCat,
+      };
+      setCurrentUser(updatedUser);
+
+      applyFilter(allRestaurants, updatedUser);
+    }
+  };
+
+  /* ----------------------------- Render ----------------------------- */
   const renderCard = useCallback(
     (card: Card, index: number) => (
       <CardView
@@ -180,26 +319,13 @@ const Index = () => {
         card={card}
         index={index}
         totalCards={cards.length}
-        panHandlers={index === 0 ? panResponder.panHandlers : {}} // Use dummyTranslate for non-top cards
-        translateX={index === 0 ? translateX : dummyTranslate} // Use dummyTranslate for non-top cards
-        translateY={index === 0 ? translateY : dummyTranslate} // Use dummyTranslate for non-top cards
-        nextCardScale={index === 1 ? nextCardScale : dummyTranslate} // Use dummyTranslate for non-top cards
+        panHandlers={index === 0 ? panResponder.panHandlers : {}}
+        translateX={index === 0 ? translateX : dummyTranslate}
+        translateY={index === 0 ? translateY : dummyTranslate}
+        nextCardScale={index === 1 ? nextCardScale : dummyTranslate}
       />
     ),
-    [
-      cards.length,
-      panResponder.panHandlers,
-      translateX,
-      translateY,
-      nextCardScale,
-    ]
-  );
-
-  // Filter users that are not already friends and match the search
-  const filteredUsers = allUsers.filter(
-    (user) =>
-      user.toLowerCase().includes(search.toLowerCase()) &&
-      !friends.includes(user)
+    [cards.length]
   );
 
   return (
@@ -207,6 +333,7 @@ const Index = () => {
       <View style={styles.HeaderContainer}>
         <Header title="GoNomNom" back={false} />
 
+        {/* Präferenzen-Icon */}
         <Pressable
           onPressIn={() => {
             btnScalePref.value = withTiming(0.8, { duration: 120 });
@@ -222,13 +349,14 @@ const Index = () => {
           </Animated.View>
         </Pressable>
 
+        {/* Gruppen-Icon */}
         <Pressable
           onPressIn={() => {
             btnScaleGroup.value = withTiming(0.8, { duration: 120 });
           }}
           onPressOut={() => {
             btnScaleGroup.value = withTiming(1, { duration: 120 });
-            setFriendsModalVisible(true); // Modal öffnen
+            setFriendsModalVisible(true);
           }}
           style={[styles.iconPressable, styles.groupIconPosition]}
         >
@@ -238,19 +366,18 @@ const Index = () => {
         </Pressable>
       </View>
 
+      {/* Modals */}
       <PrefModal
         visible={prefModalVisible}
-        onClose={() => setPrefModalVisible(false)}
+        onClose={handleClosePrefs}
         friends={friends}
         search={search}
         setSearch={setSearch}
         filteredUsers={filteredUsers}
-        onAddFriend={(name) => {
-          setFriends([...friends, name]);
-        }}
+        onAddFriend={(name) => setFriends([...friends, name])}
+        userId={user?.uid} // Pass current user ID
       />
 
-      {/* Modal für Freunde */}
       <FriendsModal
         visible={friendsModalVisible}
         onClose={() => setFriendsModalVisible(false)}
@@ -258,15 +385,16 @@ const Index = () => {
         search={search}
         setSearch={setSearch}
         filteredUsers={filteredUsers}
-        onAddFriend={(name) => {
-          setFriends([...friends, name]);
-        }}
+        onAddFriend={(name) => setFriends([...friends, name])}
       />
 
+      {/* Card Deck */}
       <View style={styles.cardDeck}>
         {cards.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No cards available</Text>
+            <Text style={styles.emptyText}>
+              {error ?? "No cards available"}
+            </Text>
           </View>
         ) : (
           <>
@@ -285,6 +413,7 @@ const Index = () => {
                   <Image source={icons.close} style={styles.dislikeImage} />
                 </Animated.View>
               </Pressable>
+
               <Pressable
                 onPressIn={() => {
                   btnScaleLike.value = withTiming(0.9, { duration: 120 });
@@ -308,24 +437,25 @@ const Index = () => {
 
 export default Index;
 
+/* --------------------------------------------------------------------------
+ * Styles
+ * ------------------------------------------------------------------------*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#171717", // Replace with your desired color or use a theme
+    backgroundColor: "#171717",
   },
   cardDeck: {
     flex: 1,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
-    backgroundColor: "#171717", // Replace with your desired color or use a theme
+    backgroundColor: "#171717",
     alignItems: "center",
     justifyContent: "center",
   },
   likeImage: {
     width: 35,
     height: 35,
-    paddingTop: 4,
-    // Replace with your desired color or use a theme
   },
   dislikeImage: {
     width: 25,
@@ -359,7 +489,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: "#333",
+    color: "#e2e2e2",
     textAlign: "center",
   },
   groupIcon: {
@@ -386,30 +516,23 @@ const styles = StyleSheet.create({
   },
   HeaderContainer: {
     width: "100%",
-    height: 160, // gleiche Höhe wie dein Header!
+    height: 160,
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 5,
   },
-  headerCenter: {
-    flex: 1,
-    alignItems: "center",
-    width: SCREEN_WIDTH,
-  },
-  iconPressable: {
-    // Add any additional styles for the Pressable components here
-  },
+  iconPressable: {},
   prefIconPosition: {
     position: "absolute",
     left: 16,
-    top: 60, // Passe an, damit das Icon auf dem Header liegt
+    top: 60,
     zIndex: 10,
   },
   groupIconPosition: {
     position: "absolute",
     right: 16,
-    top: 60, // Passe an, damit das Icon auf dem Header liegt
+    top: 60,
     zIndex: 10,
   },
 });

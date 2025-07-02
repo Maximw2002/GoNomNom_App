@@ -1,31 +1,18 @@
 const express = require("express");
-const next = require("next");
+const path = require("path");
 
-const nextApp = next({ dev: true });
-const handleRequest = nextApp.getRequestHandler();
+const app = express();
 
-const userRoutes = require('./routes/userRoutes');
-const restaurantRoutes = require('./routes/restaurantRoutes');
+app.use(express.json());
 
-async function startServer() {
-  await nextApp.prepare();
+// Statische Bilder aus /public/images bereitstellen
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-  const app = express();
+// Beispielroute für Testzwecke (optional)
+app.get('/', (req, res) => {
+  res.send('Express-Server läuft!');
+});
 
-  app.use(express.json());
-
-  app.use('/api/users', userRoutes);
-  app.use('/api/restaurants', restaurantRoutes);
-
-  app.all('*', (req, res) => {
-    return handleRequest(req, res);
-  });
-
-  app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server running on port ${process.env.PORT}`);
-  });
-}
-
-startServer().catch(err => {
-  console.error("Failed to start server:", err);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server running on port ${process.env.PORT || 3000}`);
 });
