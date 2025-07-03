@@ -279,7 +279,9 @@ const FavoritesScreen = () => {
             })
           }
         >
-          <Text style={styles.tournamentButtonText}>Can't decide?</Text>
+          <Text style={styles.tournamentButtonText}>
+            Du kannst dich nicht entscheiden?
+          </Text>
         </Pressable>
       )}
 

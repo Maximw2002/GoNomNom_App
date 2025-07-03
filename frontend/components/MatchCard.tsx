@@ -17,7 +17,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{restaurant.name}</Text>
         <Text style={styles.matches}>
-          Matched with {matchedFriends.length} friends
+          Matched mit {matchedFriends.length} Freunden
         </Text>
         <View style={styles.avatarsContainer}>
           {matchedFriends.map((friend) => (
@@ -37,7 +37,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(30, 30, 30, 1)", // Semi-transparent white background
     borderRadius: 10,
     padding: 10,
     marginVertical: 8,
