@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#fff",
   },
   matches: {
     fontSize: 14,
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginLeft: -10, // Creates the overlapping effect
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "rgba(30, 30, 30, 1)",
   },
 });
 
