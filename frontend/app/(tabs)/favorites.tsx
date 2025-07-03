@@ -223,9 +223,11 @@ const FavoritesScreen = () => {
     if (activeTab === "matches") {
       if (groupMatches.length === 0) {
         return (
-          <Text style={styles.emptyText}>
-            No matches found with your friends' favorites.
-          </Text>
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>
+              Du hast noch keine Matches mit deinen Freunden.
+            </Text>
+          </View>
         );
       }
       return (
@@ -296,7 +298,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#171717",
-    paddingBottom: 85, // Offset for tab bar
   },
   center: {
     flex: 1,
@@ -306,6 +307,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: "#fff",
     fontSize: 18,
+    textAlign: "center",
   },
   tournamentButton: {
     backgroundColor: "rgba(30, 30, 30, 1)",

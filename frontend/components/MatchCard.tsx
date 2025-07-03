@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Card as Restaurant, User } from "../interfaces/interfaces";
+import { useRouter } from "expo-router";
 
 interface MatchCardProps {
   restaurant: Restaurant;
@@ -11,8 +12,12 @@ const MatchCard: React.FC<MatchCardProps> = ({
   restaurant,
   matchedFriends,
 }) => {
+  const router = useRouter();
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/RestaurantDetails/${restaurant.id}`)}
+    >
       <Image source={{ uri: restaurant.images[0] }} style={styles.image} />
       <View style={styles.infoContainer}>
         <Text style={styles.name}>{restaurant.name}</Text>
@@ -31,7 +36,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
           ))}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
