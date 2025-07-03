@@ -14,7 +14,6 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ title, back }) => {
   return (
     <View style={styles.container}>
-      {/* <Image source={images.backGround} style={styles.backGroundImage} /> */}
       {back && <Image source={icons.arrowback} style={styles.backIcon} />}
 
       <Text style={styles.title}>{title}</Text>
@@ -30,6 +29,9 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
+    backgroundColor: "rgba(29, 29, 29, 1)", // Semi-transparent blue background
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   title: {
     fontFamily: "Lobster-Regular", // Custom Font
@@ -39,7 +41,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     fontWeight: "bold",
     position: "absolute",
-    top: 60,
+    top: 80,
     zIndex: 2, // Titel über dem Hintergrundbild
   },
   backIcon: {
