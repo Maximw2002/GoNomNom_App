@@ -1,8 +1,9 @@
-import { Image, View } from "react-native";
+import { Image, View, StyleSheet } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import { icons } from "@/constants/icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
 
 const TabIcon = ({ color, icon, size = 40 }: any) => {
   return (
@@ -26,12 +27,19 @@ const _layout = () => {
       <Tabs
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: "#171717", // schwarzer Hintergrund
+            position: "absolute",
             borderTopWidth: 0,
-            height: 100,
-            paddingTop: 25,
+            height: 85,
+            paddingTop: 5,
             paddingBottom: insets.bottom, // Add safe area padding to the bottom
           },
+          tabBarBackground: () => (
+            <BlurView
+              intensity={90}
+              tint="dark"
+              style={StyleSheet.absoluteFill}
+            />
+          ),
           tabBarItemStyle: {
             width: "100%",
             height: "100%",
@@ -41,7 +49,10 @@ const _layout = () => {
           tabBarActiveTintColor: "#007AFF", // aktive Icon-Farbe
           tabBarInactiveTintColor: "#ffffff", // inaktive Icon-Farbe
           headerShown: false,
-          tabBarShowLabel: false,
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            marginTop: 5, // Adjust this value to increase/decrease the space
+          },
           animation: "shift",
           // Animation für den Tab-Wechsel
         }}
@@ -49,27 +60,27 @@ const _layout = () => {
         <Tabs.Screen
           name="favorites"
           options={{
-            title: "Favorites",
+            title: "Favoriten",
             tabBarIcon: ({ color }) => (
-              <TabIcon color={color} icon={icons.favorites} size={50} />
+              <TabIcon color={color} icon={icons.favorites} size={40} />
             ),
           }}
         />
         <Tabs.Screen
           name="index"
           options={{
-            title: "Home",
+            title: "Matches",
             tabBarIcon: ({ color }) => (
-              <TabIcon color={color} icon={icons.plus} />
+              <TabIcon color={color} icon={icons.plus} size={30} />
             ),
           }}
         />
         <Tabs.Screen
           name="settings"
           options={{
-            title: "Settings",
+            title: "Profil",
             tabBarIcon: ({ color }) => (
-              <TabIcon color={color} icon={icons.user} />
+              <TabIcon color={color} icon={icons.user} size={30} />
             ),
           }}
         />

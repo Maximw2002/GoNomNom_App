@@ -513,6 +513,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#171717",
+    paddingBottom: 85, // Add padding to offset the absolute tab bar
   },
   cardDeck: {
     flex: 1,
@@ -532,7 +533,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 8,
+    bottom: 15,
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",

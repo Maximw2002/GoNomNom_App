@@ -1,6 +1,6 @@
 import { View, Text, Image, Pressable, TouchableHighlight } from "react-native";
-import React, { useState, useEffect } from "react";
-import { Stack } from "expo-router";
+import React, { useState, useCallback } from "react";
+import { Stack, useFocusEffect } from "expo-router";
 import { StyleSheet } from "react-native";
 import images from "@/constants/images";
 import Animated, {
@@ -13,33 +13,42 @@ import { icons } from "@/constants/icons";
 import DeleteAccModal from "@/components/Modals/DeleteAccModal";
 import { auth, db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 import { User as UserInterface } from "@/interfaces/interfaces";
 
 const User = () => {
   const router = useRouter();
   const [userData, setUserData] = useState<UserInterface | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          setUserData({
-            id: userDocSnap.id,
-            ...userDocSnap.data(),
-          } as UserInterface);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserData = async () => {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          try {
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+              setUserData({
+                id: userDocSnap.id,
+                ...userDocSnap.data(),
+              } as UserInterface);
+            } else {
+              console.log("Benutzerdokument nicht in Firestore gefunden.");
+            }
+          } catch (error) {
+            console.error("Fehler beim Abrufen der Benutzerdaten:", error);
+          }
         } else {
-          console.log("Benutzerdokument nicht in Firestore gefunden.");
+          setUserData(null);
         }
-      } else {
-        setUserData(null);
-      }
-    });
+      };
 
-    return () => unsubscribe();
-  }, []);
+      fetchUserData();
+
+      // Optional: Cleanup-Funktion, falls benötigt
+      return () => {};
+    }, [])
+  );
 
   const imgScale = useSharedValue(1);
   const iconColor = useSharedValue("#fff");
