@@ -155,8 +155,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   overlay: {
+    height: 60,
     position: "absolute",
-    bottom: 8,
+    bottom: 0,
     width: "90%",
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
@@ -165,8 +166,9 @@ const styles = StyleSheet.create({
   },
   restaurantName: {
     color: "#fff",
-    fontSize: 30,
+    fontSize: 40,
     fontWeight: "bold",
+    fontFamily: "Alkatra-Medium",
   },
   linearGradient: {
     zIndex: 1,

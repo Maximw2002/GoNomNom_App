@@ -1,12 +1,10 @@
 import React, { FC, useCallback } from "react";
-import { Pressable, Text, Image, View } from "react-native";
+import { Pressable, Text, Image, View, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { images } from "@/constants/images";
-import { icons } from "@/constants/icons";
 
 type Props = {
   name: string;
@@ -14,8 +12,6 @@ type Props = {
   buttonStyle?: any;
   textStyle?: any;
   icon?: any;
-  buttonColor?: string;
-  textColor?: string;
 };
 
 const SettingsButton: FC<Props> = ({
@@ -24,21 +20,11 @@ const SettingsButton: FC<Props> = ({
   buttonStyle,
   textStyle,
   icon,
-  buttonColor,
-  textColor,
 }) => {
-  const btnScale = useSharedValue(1);
-  const btnColor = useSharedValue(buttonColor || "#fff");
-  const txtColor = useSharedValue(textColor || "#000");
+  const btnBgColor = useSharedValue("transparent");
+
   const btnAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: btnScale.value }],
-    backgroundColor: btnColor.value,
-  }));
-  const txtAnimatedStyle = useAnimatedStyle(() => ({
-    color: txtColor.value,
-  }));
-  const iconAnimatedStyle = useAnimatedStyle(() => ({
-    tintColor: txtColor.value,
+    backgroundColor: btnBgColor.value,
   }));
 
   const handlePress = useCallback(() => {
@@ -48,44 +34,29 @@ const SettingsButton: FC<Props> = ({
   return (
     <Pressable
       onPressIn={() => {
-        btnScale.value = withTiming(0.9, { duration: 200 });
-        btnColor.value = withTiming(buttonColor || "#007AFF", {
-          duration: 200,
-        });
-        txtColor.value = withTiming("#fff", { duration: 200 });
+        btnBgColor.value = withTiming("#3a3a3c", { duration: 100 });
       }}
       onPressOut={() => {
-        btnScale.value = withTiming(1, { duration: 200 });
-        btnColor.value = withTiming(buttonColor || "#fff", { duration: 200 });
-        txtColor.value = withTiming(textColor || "#000", { duration: 200 });
+        btnBgColor.value = withTiming("transparent", { duration: 200 });
       }}
       onPress={handlePress}
     >
       <Animated.View style={[buttonStyle, btnAnimatedStyle]}>
-        <View
-          style={{ flexDirection: "row", alignItems: "center", width: "100%" }}
-        >
-          <Animated.Text style={[textStyle, txtAnimatedStyle]}>
-            {name}
-          </Animated.Text>
-          {icon && (
-            <Animated.Image
-              source={icon}
-              style={[
-                {
-                  width: 20,
-                  height: 20,
-                  position: "absolute",
-                  right: 0,
-                },
-                iconAnimatedStyle,
-              ]}
-            />
-          )}
-        </View>
+        <Text style={textStyle}>{name}</Text>
+        {icon && <Image source={icon} style={styles.icon} />}
       </Animated.View>
     </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 16,
+    height: 16,
+    tintColor: "#8e8e93",
+    position: "absolute",
+    right: 15,
+  },
+});
 
 export default SettingsButton;

@@ -1,7 +1,8 @@
-import { View, Image } from "react-native";
+import { Image, View } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import { icons } from "@/constants/icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabIcon = ({ color, icon, size = 40 }: any) => {
   return (
@@ -18,6 +19,8 @@ const TabIcon = ({ color, icon, size = 40 }: any) => {
 };
 
 const _layout = () => {
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={{ flex: 1, backgroundColor: "#171717" }}>
       <Tabs
@@ -27,6 +30,7 @@ const _layout = () => {
             borderTopWidth: 0,
             height: 100,
             paddingTop: 25,
+            paddingBottom: insets.bottom, // Add safe area padding to the bottom
           },
           tabBarItemStyle: {
             width: "100%",

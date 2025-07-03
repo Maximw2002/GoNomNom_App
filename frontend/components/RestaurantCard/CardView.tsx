@@ -7,7 +7,7 @@ import {
   Image,
 } from "react-native";
 import React, { FC, memo, useEffect } from "react";
-import { Card } from "../../app/(tabs)";
+import { Card } from "../../interfaces/interfaces"; // Adjust the import path as necessary
 import {
   Easing,
   Extrapolation,
@@ -239,7 +239,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 4,
+    marginBottom: 0,
+    fontFamily: "Alkatra-Medium", // Custom Font
   },
   row: {
     flexDirection: "row",

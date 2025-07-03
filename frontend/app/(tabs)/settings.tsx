@@ -18,107 +18,108 @@ const settings = () => {
   }, [router]);
 
   return (
-    <View style={styles.Container}>
+    <View style={styles.container}>
       <Header title="Profil" back={false} />
-      <View style={styles.settingsWrapper}>
-        <SettingsButton
-          name="Benutzerprofil"
-          onPress={() => router.push("/Settings/User")}
-          buttonStyle={styles.settingsButton}
-          textStyle={styles.settingsButtonText}
-          icon={icons.right}
-        />
-        <SettingsButton
-          name="FAQ"
-          onPress={() => router.push("/Settings/Faq")}
-          buttonStyle={styles.settingsButton}
-          textStyle={styles.settingsButtonText}
-          icon={icons.right}
-        />
-        <SettingsButton
-          name="Impressum"
-          onPress={() => router.push("/Settings/LegalNotice")}
-          buttonStyle={styles.settingsButton}
-          textStyle={styles.settingsButtonText}
-          icon={icons.right}
-        />
-        <SettingsButton
-          name="AGBs"
-          onPress={() => router.push("/Settings/Agbs")}
-          buttonStyle={styles.settingsButton}
-          textStyle={styles.settingsButtonText}
-          icon={icons.right}
-        />
-        <SettingsButton
-          name="Abmelden"
-          onPress={() => getAuth().signOut()}
-          buttonStyle={styles.logoutButton}
-          textStyle={styles.settingsButtonText}
-          icon={icons.logout}
-          buttonColor="#FF0101"
-        />
+      <View style={styles.contentContainer}>
+        {/* Navigation Group */}
+        <View style={styles.settingsGroup}>
+          <SettingsButton
+            name="Benutzerprofil"
+            onPress={() => router.push("/Settings/User")}
+            buttonStyle={styles.settingsButton}
+            textStyle={styles.settingsButtonText}
+            icon={icons.right}
+          />
+          <View style={styles.separator} />
+          <SettingsButton
+            name="FAQ"
+            onPress={() => router.push("/Settings/Faq")}
+            buttonStyle={styles.settingsButton}
+            textStyle={styles.settingsButtonText}
+            icon={icons.right}
+          />
+          <View style={styles.separator} />
+          <SettingsButton
+            name="Impressum"
+            onPress={() => router.push("/Settings/LegalNotice")}
+            buttonStyle={styles.settingsButton}
+            textStyle={styles.settingsButtonText}
+            icon={icons.right}
+          />
+          <View style={styles.separator} />
+          <SettingsButton
+            name="AGBs"
+            onPress={() => router.push("/Settings/Agbs")}
+            buttonStyle={styles.settingsButton}
+            textStyle={styles.settingsButtonText}
+            icon={icons.right}
+          />
+        </View>
+
+        {/* Logout Group */}
+        <View style={styles.logoutGroup}>
+          <SettingsButton
+            name="Abmelden"
+            onPress={() => getAuth().signOut()}
+            buttonStyle={styles.logoutButton}
+            textStyle={styles.logoutButtonText}
+          />
+        </View>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  Container: {
+  container: {
     flex: 1,
-    backgroundColor: "#171717",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#171717", // Darker background for the whole screen
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center", // Center the content vertically
+    paddingHorizontal: 20,
+  },
+  settingsGroup: {
+    backgroundColor: "#1c1c1e",
+    borderRadius: 10,
+    marginBottom: 30,
+    overflow: "hidden", // This will clip the highlight to the container's rounded corners
   },
   settingsButton: {
-    height: 50,
-    width: 300,
-    backgroundColor: "#fff",
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    marginVertical: 20,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    minWidth: 120,
-    marginHorizontal: 5,
-    shadowColor: "#929291",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    // Schatten für Android
-    elevation: 8,
-    borderWidth: 0.5,
-    borderColor: "#333",
-  },
-  logoutButton: {
-    height: 50,
-    width: 200,
-    backgroundColor: "#FF0101",
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 120,
-    marginTop: 120,
-    marginHorizontal: 5,
-    // Schatten für Android
-    elevation: 8,
-    borderWidth: 0.5,
-    borderColor: "#333",
-  },
-  settingsButtonSelected: {
-    backgroundColor: "#007AFF",
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: "transparent", // No background color for the button itself
   },
   settingsButtonText: {
-    color: "#171717",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "#fff",
+    fontSize: 17,
+    flex: 1, // Take up available space
   },
-  settingsWrapper: {
-    flex: 1,
-    justifyContent: "center",
+  separator: {
+    height: 1,
+    backgroundColor: "#3a3a3c",
+    marginLeft: 15,
+  },
+  logoutGroup: {
+    backgroundColor: "#1c1c1e",
+    borderRadius: 10,
+    overflow: "hidden", // Also clip the highlight for the logout button
+  },
+  logoutButton: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center", // Center the text
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: "transparent",
+  },
+  logoutButtonText: {
+    color: "#ff453a", // Red color for logout
+    fontSize: 17,
+    fontWeight: "bold",
   },
 });
 

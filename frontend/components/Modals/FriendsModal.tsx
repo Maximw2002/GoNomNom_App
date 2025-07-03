@@ -10,13 +10,11 @@ import {
   Pressable,
   Image,
   StyleSheet,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import AddFriendButton from "@/components/AddFriendButton";
 import { User } from "@/interfaces/interfaces";
 
 type FriendsModalProps = {
@@ -40,6 +38,44 @@ const FriendsModal: FC<FriendsModalProps> = ({
   onAddFriend,
   onRemoveFriend,
 }) => {
+  const renderFriendItem = ({ item }: { item: User }) => (
+    <View style={styles.friendItem}>
+      <Image
+        source={
+          item.profilePicture
+            ? { uri: item.profilePicture }
+            : images.profilePicture
+        }
+        style={styles.friendImage}
+        resizeMode="cover"
+      />
+      <Text style={styles.friendName}>{item.userName}</Text>
+      <Pressable
+        onPress={() => onRemoveFriend(item.id)}
+        style={styles.removeFriendButton}
+      >
+        <Image source={icons.deleteIcon} style={styles.removeFriendIcon} />
+      </Pressable>
+    </View>
+  );
+
+  const renderUserItem = ({ item }: { item: User }) => (
+    <View style={styles.userItem}>
+      <Image
+        source={
+          item.profilePicture
+            ? { uri: item.profilePicture }
+            : images.profilePicture
+        }
+        style={styles.friendImage}
+      />
+      <Text style={styles.friendName}>{item.userName}</Text>
+      <Pressable onPress={() => onAddFriend(item)} style={styles.addButton}>
+        <Image source={icons.register} style={styles.addIcon} />
+      </Pressable>
+    </View>
+  );
+
   return (
     <Modal
       visible={visible}
@@ -47,206 +83,182 @@ const FriendsModal: FC<FriendsModalProps> = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <View style={styles.searchBar}>
-            <Image
-              source={icons.search}
-              style={{ width: 20, height: 20, marginRight: 12, marginTop: 6 }}
-            />
-            <TextInput
-              placeholder="Freunde suchen..."
-              placeholderTextColor="#007AFF"
-              value={search}
-              onChangeText={setSearch}
-              style={styles.searchInput}
-            />
-          </View>
-          {search.length > 0 && (
-            <FlatList
-              keyboardShouldPersistTaps="handled"
-              data={filteredUsers}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <AddFriendButton
-                  name={item.userName}
-                  onAdd={() => onAddFriend(item)}
-                  buttonStyle={styles.buttonAddUser}
-                  textStyle={styles.addUserText}
-                  imageStyle={styles.addFriendImage}
-                  plusIconStyle={styles.plusIcon}
-                />
-              )}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>Keine Nutzer gefunden.</Text>
-              }
-            />
-          )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              {/* Header */}
+              <View style={styles.header}>
+                <Text style={styles.title}>Freunde</Text>
+                <Pressable onPress={onClose} style={styles.closeButton}>
+                  <Image source={icons.closeModal} style={styles.closeIcon} />
+                </Pressable>
+              </View>
 
-          <View style={styles.friendsContainer}>
-            <Text style={styles.title}>Deine Freunde</Text>
-            <FlatList
-              data={friends.slice().reverse()} // Reverse the order to show the latest friends first
-              horizontal={true}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.friendItem}>
-                  <View>
-                    <Image
-                      source={
-                        item.profilePicture
-                          ? { uri: item.profilePicture }
-                          : images.profilePicture
-                      }
-                      style={styles.friendImage}
-                      resizeMode="cover"
-                    />
-                    <Pressable
-                      onPress={() => onRemoveFriend(item.id)}
-                      style={styles.removeFriendButton}
-                    >
-                      <Image
-                        source={icons.closeModal}
-                        style={styles.removeFriendIcon}
-                      />
-                    </Pressable>
-                  </View>
-                  <Text style={styles.friendName}>{item.userName}</Text>
-                </View>
-              )}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>Keine Freunde gefunden.</Text>
-              }
-            />
+              {/* Search Bar */}
+              <View style={styles.searchBar}>
+                <Image
+                  source={icons.search}
+                  style={{ width: 20, height: 20, marginRight: 12 }}
+                />
+                <TextInput
+                  placeholder="Freunde suchen..."
+                  placeholderTextColor="#8e8e93"
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
+                />
+              </View>
+
+              {/* Content */}
+              <View style={styles.contentContainer}>
+                {search.length > 0 ? (
+                  <FlatList
+                    data={filteredUsers}
+                    renderItem={renderUserItem}
+                    keyExtractor={(item) => item.id}
+                    ListEmptyComponent={
+                      <Text style={styles.emptyText}>
+                        Keine Nutzer gefunden.
+                      </Text>
+                    }
+                  />
+                ) : (
+                  <FlatList
+                    data={friends}
+                    renderItem={renderFriendItem}
+                    keyExtractor={(item) => item.id}
+                    ListEmptyComponent={
+                      <View style={styles.noFriendsContainer}>
+                        <Text style={styles.emptyText}>
+                          Du hast noch keine Freunde.
+                        </Text>
+                        <Text style={styles.emptySubText}>
+                          Füge Freunde hinzu, um zu sehen, was ihnen gefällt!
+                        </Text>
+                      </View>
+                    }
+                  />
+                )}
+              </View>
+            </View>
           </View>
-          <Pressable onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Schließen</Text>
-          </Pressable>
-        </View>
-      </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContainer: {
     width: "90%",
-    backgroundColor: "#171717",
+    maxHeight: "80%",
+    minHeight: "40%",
+    backgroundColor: "#1c1c1e",
     borderRadius: 16,
     padding: 20,
-    height: "50%",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
   title: {
     fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 10,
     color: "#fff",
-    marginTop: 20,
-  },
-  friendItem: {
-    alignItems: "center",
-    justifyContent: "flex-start",
-    marginRight: 16,
-    paddingTop: 10, // Add padding to the right for spacing
-  },
-  friendImage: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    marginBottom: 4,
-  },
-  friendName: {
-    fontSize: 16,
-    color: "#fff",
-    marginTop: 8, // Add margin to separate name from the image/icon
-  },
-  removeFriendButton: {
-    position: "absolute",
-    top: -5, // Adjust to move icon slightly up
-    right: -5, // Adjust to move icon slightly to the right
-    backgroundColor: "rgba(45, 45, 45, 0.9)",
-    borderRadius: 12,
-    padding: 2,
-    zIndex: 1, // Ensure button is on top
-  },
-  removeFriendIcon: {
-    width: 16,
-    height: 16,
-  },
-  emptyText: {
-    color: "#fff",
-    marginBottom: 8,
-    marginTop: 45,
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderRadius: 20,
-    padding: 8,
-    marginTop: 16,
-    marginBottom: 8,
-    color: "#fff",
-    backgroundColor: "#232323",
-    borderColor: "#007AFF",
-    width: "80%",
-  },
-  buttonAddUser: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: 10,
-    borderRadius: 20,
-    backgroundColor: "#fff",
-    width: "100%",
-    marginVertical: 5,
-  },
-  addUserText: {
-    color: "#171717",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 10,
+    fontFamily: "Alkatra-Medium",
   },
   closeButton: {
-    position: "absolute",
-    alignSelf: "flex-end",
     padding: 8,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    bottom: 15,
-    right: 15,
   },
-  closeButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+  closeIcon: {
+    width: 18,
+    height: 18,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 8,
-    padding: 0,
-    marginBottom: 16,
+    backgroundColor: "#2c2c2e",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 20,
   },
-  friendsContainer: {
-    height: 180,
-    width: "100%",
-    alignItems: "flex-start",
-    justifyContent: "flex-end",
-    marginBottom: 40,
+  searchInput: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 16,
+    paddingVertical: 12,
   },
-  addFriendImage: {
-    width: 30,
-    height: 30,
+  contentContainer: {
+    flexGrow: 1,
   },
-  plusIcon: {
+  friendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#3a3a3c",
+  },
+  userItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#3a3a3c",
+  },
+  friendImage: {
+    height: 44,
+    width: 44,
+    borderRadius: 22,
+    marginRight: 16,
+  },
+  friendName: {
+    fontSize: 17,
+    color: "#fff",
+    flex: 1,
+  },
+  removeFriendButton: {
+    padding: 8,
+  },
+  removeFriendIcon: {
     width: 20,
     height: 20,
-    position: "absolute",
-    right: 15,
-    top: 15,
+  },
+  addButton: {
+    padding: 8,
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+  },
+  addIcon: {
+    width: 20,
+    height: 20,
+  },
+  emptyText: {
+    color: "#8e8e93",
+    textAlign: "center",
+    marginTop: 40,
+    fontSize: 16,
+  },
+  noFriendsContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  emptySubText: {
+    color: "#8e8e93",
+    textAlign: "center",
+    marginTop: 8,
+    fontSize: 14,
   },
 });
 

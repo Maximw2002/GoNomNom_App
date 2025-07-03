@@ -10,7 +10,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     Font.loadAsync({
-      "BalooPaaji2-ExtraBold": require("@/assets/fonts/BalooPaaji2-ExtraBold.ttf"),
+      "Lobster-Regular": require("@/assets/fonts/Lobster-Regular.ttf"),
+      "Alkatra-Medium": require("@/assets/fonts/Alkatra-Medium.ttf"),
     }).then(() => setFontsLoaded(true));
   }, []);
 
@@ -21,7 +22,6 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="restaurant/[id]" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
   );

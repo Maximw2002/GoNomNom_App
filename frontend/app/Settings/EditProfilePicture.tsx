@@ -45,8 +45,9 @@ const EditProfilePicture = () => {
           <Text
             style={{
               color: "#fff",
-              fontSize: 30,
+              fontSize: 35,
               fontWeight: "bold",
+              fontFamily: "Alkatra-Medium", // Custom Font
             }}
           >
             Wähle dein Profilbild

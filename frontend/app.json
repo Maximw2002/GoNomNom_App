@@ -42,7 +42,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "fonts": {
-      "BalooPaaji2-ExtraBold": "./assets/fonts/BalooPaaji2-ExtraBold.ttf"
+      "Lobster-Regular": "./assets/fonts/Lobster-Regular.ttf",
+      "Alkatra-Medium": "./assets/fonts/Alkatra-Medium.ttf"
     }
   }
 }

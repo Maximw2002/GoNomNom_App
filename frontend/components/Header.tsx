@@ -12,17 +12,9 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ title, back }) => {
-  // Fonts nur einmal für die App laden (besser im Root),
-  // hier aber für Demo weiter lokal:
-  // const [fontsLoaded] = useFonts({
-  //   OrbitronBold: require("@/assets/fonts/Orbitron-Bold.ttf"),
-  // });
-
-  // if (!fontsLoaded) return null; // <–– nicht blockieren!
-
   return (
     <View style={styles.container}>
-      <Image source={images.backGround} style={styles.backGroundImage} />
+      {/* <Image source={images.backGround} style={styles.backGroundImage} /> */}
       {back && <Image source={icons.arrowback} style={styles.backIcon} />}
 
       <Text style={styles.title}>{title}</Text>
@@ -40,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontFamily: "BalooPaaji2-ExtraBold", // Custom Font
+    fontFamily: "Lobster-Regular", // Custom Font
     fontSize: 45,
     color: "#ffffff",
     justifyContent: "center",

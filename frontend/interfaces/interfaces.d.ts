@@ -80,6 +80,7 @@ export interface Card {
   mains: string[];
   drinks: string[];
   desserts: string[];
+  reviews?: string[];
 }
 
 export interface TrendingCardProps {

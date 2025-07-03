@@ -4,6 +4,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import React, { useState, useEffect, memo, useCallback } from "react";
 import Header from "@/components/Header";
@@ -21,6 +22,7 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import { useIsFocused, useNavigationState } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import { Card } from "@/interfaces/interfaces"; // Adjust the import path as necessary
 import isEqual from "lodash/isEqual";
 
@@ -31,6 +33,7 @@ const Favorites = () => {
   const user = auth.currentUser;
   const isFocused = useIsFocused();
   const navState = useNavigationState((state) => state);
+  const router = useRouter();
 
   const handleDelete = async (restaurantId: string) => {
     if (!user) return;
@@ -126,24 +129,45 @@ const Favorites = () => {
     );
   }
 
+  console.log("Favorite Restaurants Data:", favoriteRestaurants);
+
   return (
     <View style={styles.container}>
       <Header title="Deine Top Picks" back={false} />
-      {favoriteRestaurants.length > 0 ? (
-        <FlatList
-          data={favoriteRestaurants}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <FavoriteCard item={item} onDelete={handleDelete} />
-          )}
-          contentContainerStyle={{ minHeight: "100%", paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>Du hast noch keine Favoriten.</Text>
-        </View>
+
+      {favoriteRestaurants.length > 1 && (
+        <Pressable
+          style={styles.tournamentButton}
+          onPress={() =>
+            router.push({
+              pathname: "/CompareFavorites",
+              params: { favorites: JSON.stringify(favoriteRestaurants) },
+            })
+          }
+        >
+          <Text style={styles.tournamentButtonText}>
+            Du kannst dich nicht entscheiden?
+          </Text>
+        </Pressable>
       )}
+
+      <View style={{ flex: 1 }} pointerEvents="box-none">
+        {favoriteRestaurants.length > 0 ? (
+          <FlatList
+            data={favoriteRestaurants}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <FavoriteCard item={item} onDelete={handleDelete} />
+            )}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>Du hast noch keine Favoriten.</Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -163,5 +187,25 @@ const styles = StyleSheet.create({
   emptyText: {
     color: "#fff",
     fontSize: 18,
+  },
+  tournamentButton: {
+    backgroundColor: "rgba(30, 30, 30, 1)",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    marginHorizontal: 20,
+    marginVertical: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 10,
+  },
+  tournamentButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

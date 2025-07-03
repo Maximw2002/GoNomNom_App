@@ -42,7 +42,7 @@ const MatchModal: FC<MatchModalProps> = ({
         <View style={styles.modalContainer}>
           <View style={styles.headerContainer}>
             <Image source={icons.heart} style={styles.icon} />
-            <Text style={styles.title}>It's a Match!</Text>
+            <Text style={styles.title}> It's a Match! </Text>
             <Image source={icons.heart} style={styles.icon} />
           </View>
           <Text style={styles.subtitle}>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: 10,
   },
   icon: {
     width: 30,
@@ -100,9 +100,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "bold",
     color: "#fff",
+    fontFamily: "Alkatra-Medium", // Custom Font
   },
   subtitle: {
     fontSize: 18,

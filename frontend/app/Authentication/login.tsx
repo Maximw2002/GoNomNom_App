@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    fontFamily: "BalooPaaji2-ExtraBold", // Custom Font
+    fontFamily: "Lobster-Regular", // Custom Font
   },
   btnContainer: {
     width: "100%",

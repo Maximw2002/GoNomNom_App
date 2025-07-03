@@ -24,6 +24,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
+import OverViewButton from "@/components/OverViewButtons";
 
 const Index = () => {
   const [username, setUsername] = useState("");
@@ -227,19 +228,25 @@ const Index = () => {
             <Text style={styles.mainTitle}>GoNomNom</Text>
           </View>
           <View style={styles.overviewBtnContainer}>
-            <SettingsButton
+            <OverViewButton
               name="Neues Konto anlegen"
               onPress={handleShowRegister}
               buttonStyle={styles.createButton}
               buttonColor="#007AFF"
-              textColor="#fff"
+              buttonColorPressed="#fff"
+              txtColor="#fff"
+              txtColorPressed="#000"
               textStyle={styles.text}
               icon={icons.register}
             />
-            <SettingsButton
+            <OverViewButton
               name="Anmelden"
               onPress={handleShowLogin}
-              buttonStyle={styles.loginButton}
+              buttonStyle={styles.createButton}
+              buttonColor="#fff"
+              buttonColorPressed="#007AFF"
+              txtColor="#000"
+              txtColorPressed="#fff"
               textStyle={styles.text}
               icon={icons.login}
             />
@@ -397,14 +404,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    fontFamily: "BalooPaaji2-ExtraBold",
+    fontFamily: "Lobster-Regular",
   },
   mainTitle: {
     fontSize: 50,
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
-    fontFamily: "BalooPaaji2-ExtraBold",
+    fontFamily: "Lobster-Regular",
   },
   overviewBtnContainer: {
     width: "100%",
@@ -436,6 +443,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   createButton: {
+    flexDirection: "row",
     height: 50,
     width: 280,
     backgroundColor: "#fff",
@@ -444,7 +452,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     marginVertical: 20,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     marginHorizontal: 5,
   },
   loginButton: {

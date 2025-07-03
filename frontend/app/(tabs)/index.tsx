@@ -432,11 +432,6 @@ const Index = () => {
       <PrefModal
         visible={prefModalVisible}
         onClose={handleClosePrefs}
-        friends={[]}
-        search={search}
-        setSearch={setSearch}
-        filteredUsers={[]}
-        onAddFriend={(name) => {}}
         userId={user?.uid} // Pass current user ID
       />
 

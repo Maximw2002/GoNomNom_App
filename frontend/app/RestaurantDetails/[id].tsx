@@ -11,8 +11,12 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { Stack } from "expo-router";
+import {
+  useLocalSearchParams,
+  useRouter,
+  Stack,
+  useFocusEffect,
+} from "expo-router";
 import { MaterialIcons, FontAwesome, Feather } from "@expo/vector-icons"; // Icons für modernes Design
 import Animated, {
   useAnimatedStyle,
@@ -24,12 +28,13 @@ import ImageModal from "@/components/Modals/ImageModal";
 import MenuModal from "@/components/Modals/MenuModal";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { Card } from "@/app/(tabs)";
+import { Card } from "../../interfaces/interfaces"; // Importieren Sie die Card-Schnittstelle
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const RestaurantDetails = () => {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
   const [restaurant, setRestaurant] = useState<Card | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -48,30 +53,44 @@ const RestaurantDetails = () => {
     color: txtColor.value,
   }));
 
-  useEffect(() => {
-    const fetchRestaurant = async () => {
-      if (typeof id !== "string") {
-        setLoading(false);
-        return;
-      }
-      try {
-        const restaurantDoc = doc(db, "restaurants", id);
-        const docSnap = await getDoc(restaurantDoc);
+  // Animation für den Rezensions-Button
+  const reviewBtnScale = useSharedValue(1);
+  const reviewBtnColor = useSharedValue("#4fc3f7");
+  const reviewTxtColor = useSharedValue("#fff");
+  const reviewBtnAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: reviewBtnScale.value }],
+    backgroundColor: reviewBtnColor.value,
+  }));
+  const reviewTxtAnimatedStyle = useAnimatedStyle(() => ({
+    color: reviewTxtColor.value,
+  }));
 
-        if (docSnap.exists()) {
-          setRestaurant({ id: docSnap.id, ...docSnap.data() } as Card);
-        } else {
-          console.log("No such document!");
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchRestaurant = async () => {
+        if (typeof id !== "string") {
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching restaurant:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        try {
+          const restaurantDoc = doc(db, "restaurants", id);
+          const docSnap = await getDoc(restaurantDoc);
 
-    fetchRestaurant();
-  }, [id]);
+          if (docSnap.exists()) {
+            setRestaurant({ id: docSnap.id, ...docSnap.data() } as Card);
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error fetching restaurant:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchRestaurant();
+    }, [id])
+  );
 
   // FlatList-Renderfunktion für das gewünschte Layout
   const renderImages = () => {
@@ -191,7 +210,9 @@ const RestaurantDetails = () => {
               </View>
               <View style={styles.infoBox}>
                 <FontAwesome name="star" size={18} color="#FFD700" />
-                <Text style={styles.infoText}>{restaurant.rating} / 5</Text>
+                <Text style={styles.infoText}>
+                  {restaurant.rating} / 5 ({restaurant.reviews?.length || 0})
+                </Text>
               </View>
               <View style={styles.infoBox}>
                 <MaterialIcons name="euro" size={18} color="#81c784" />
@@ -216,27 +237,65 @@ const RestaurantDetails = () => {
 
             <Text style={styles.description}>{restaurant.description}</Text>
 
-            <Pressable
-              onPressIn={() => {
-                btnScale.value = withTiming(0.9, { duration: 200 });
-                btnColor.value = withTiming("#fff", {
-                  duration: 200,
-                });
-                txtColor.value = withTiming("#000", { duration: 200 });
-              }}
-              onPressOut={() => {
-                btnScale.value = withTiming(1, { duration: 200 });
-                btnColor.value = withTiming("#007AFF", { duration: 200 });
-                txtColor.value = withTiming("#fff", { duration: 200 });
-              }}
-              onPress={() => setMenuVisible(true)}
-            >
-              <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
-                <Animated.Text style={[styles.regTextStyle, txtAnimatedStyle]}>
-                  Speisekarte anzeigen
-                </Animated.Text>
-              </Animated.View>
-            </Pressable>
+            <View style={styles.buttonsRow}>
+              <Pressable
+                onPressIn={() => {
+                  btnScale.value = withTiming(0.9, { duration: 200 });
+                  btnColor.value = withTiming("#fff", {
+                    duration: 200,
+                  });
+                  txtColor.value = withTiming("#000", { duration: 200 });
+                }}
+                onPressOut={() => {
+                  btnScale.value = withTiming(1, { duration: 200 });
+                  btnColor.value = withTiming("#007AFF", { duration: 200 });
+                  txtColor.value = withTiming("#fff", { duration: 200 });
+                }}
+                onPress={() => setMenuVisible(true)}
+              >
+                <Animated.View style={[styles.regBtnStyle, btnAnimatedStyle]}>
+                  <Animated.Text
+                    style={[styles.regTextStyle, txtAnimatedStyle]}
+                  >
+                    Speisekarte
+                  </Animated.Text>
+                </Animated.View>
+              </Pressable>
+
+              <Pressable
+                onPressIn={() => {
+                  reviewBtnScale.value = withTiming(0.9, { duration: 200 });
+                  reviewBtnColor.value = withTiming("#fff", {
+                    duration: 200,
+                  });
+                  reviewTxtColor.value = withTiming("#000", {
+                    duration: 200,
+                  });
+                }}
+                onPressOut={() => {
+                  reviewBtnScale.value = withTiming(1, { duration: 200 });
+                  reviewBtnColor.value = withTiming("#4fc3f7", {
+                    duration: 200,
+                  });
+                  reviewTxtColor.value = withTiming("#fff", {
+                    duration: 200,
+                  });
+                }}
+                onPress={() =>
+                  router.push(`/RestaurantDetails/reviews?id=${id}`)
+                }
+              >
+                <Animated.View
+                  style={[styles.regBtnStyle, reviewBtnAnimatedStyle]}
+                >
+                  <Animated.Text
+                    style={[styles.regTextStyle, reviewTxtAnimatedStyle]}
+                  >
+                    Rezensionen
+                  </Animated.Text>
+                </Animated.View>
+              </Pressable>
+            </View>
 
             {/* Modal für Bildanzeige */}
             <ImageModal
@@ -295,11 +354,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    marginTop: 20, // Reduziert von 100, da der Header nicht mehr transparent ist
-    fontSize: 32,
+    marginTop: 0, // Reduziert von 100, da der Header nicht mehr transparent ist
+    fontSize: 38,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 8,
+    marginBottom: 0,
+    fontFamily: "Alkatra-Medium", // Custom Font
   },
   row: {
     flexDirection: "row",
@@ -316,7 +376,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", // <-- Zeilenumbruch aktivieren
     justifyContent: "flex-start", // Optional: linksbündig
     width: "92%",
-    marginTop: 10,
+    marginTop: 0,
     marginBottom: 20,
   },
   infoBox: {
@@ -361,8 +421,15 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
   },
+  buttonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 10,
+    paddingHorizontal: 20,
+  },
   regBtnStyle: {
-    width: 250,
+    width: 160,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
@@ -376,7 +443,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   regTextStyle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
   modalContainer: {
