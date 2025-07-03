@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "Lobster-Regular", // Custom Font
-    fontSize: 45,
+    fontSize: 38,
     color: "#ffffff",
     justifyContent: "center",
     alignItems: "center",

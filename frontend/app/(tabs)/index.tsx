@@ -596,13 +596,13 @@ const styles = StyleSheet.create({
   prefIconPosition: {
     position: "absolute",
     left: 16,
-    top: 60,
+    top: 85,
     zIndex: 10,
   },
   groupIconPosition: {
     position: "absolute",
     right: 16,
-    top: 60,
+    top: 85,
     zIndex: 10,
   },
 });

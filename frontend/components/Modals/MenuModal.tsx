@@ -151,13 +151,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 0.5,
   },
-  itemText: {
-    color: "#eee",
-    fontSize: 16,
-    marginLeft: 8,
-    marginBottom: 2,
-    lineHeight: 22,
-  },
   emptyText: {
     color: "#888",
     fontStyle: "italic",
