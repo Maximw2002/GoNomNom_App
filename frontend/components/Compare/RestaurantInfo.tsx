@@ -67,7 +67,7 @@ const RestaurantInfo: React.FC<Props> = ({ restaurant, isWinner = false }) => {
             validImages.map((img: string, index: number) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => handleImagePress({ uri: img })}
+                onPress={() => handleImagePress(img)}
               >
                 <Image
                   key={index}
@@ -78,7 +78,7 @@ const RestaurantInfo: React.FC<Props> = ({ restaurant, isWinner = false }) => {
             ))
           ) : (
             <TouchableOpacity
-              onPress={() => handleImagePress(images.restaurantImage2)}
+              onPress={() => handleImagePress(null)}
             >
               <Image
                 source={images.restaurantImage2}

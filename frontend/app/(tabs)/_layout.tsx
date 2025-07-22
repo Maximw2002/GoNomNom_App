@@ -32,6 +32,7 @@ const _layout = () => {
             height: 85,
             paddingTop: 5,
             paddingBottom: insets.bottom, // Add safe area padding to the bottom
+            backgroundColor: "transparent",
           },
           tabBarBackground: () => (
             <BlurView

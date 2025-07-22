@@ -62,6 +62,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginBottom: 2,
     lineHeight: 22,
+    flex: 1,
+    marginRight: 8,
   },
   emptyText: {
     color: "#888",
